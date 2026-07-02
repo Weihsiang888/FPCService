@@ -1,0 +1,18 @@
+﻿@page "/MachineSetting"
+@rendermode InteractiveServer
+@inject NavigationManager NavigationManager
+@inject UIService UIService
+
+<MachineSetting></MachineSetting>
+
+@code {
+    private void GetActionCallback(RequestResult res)
+    {
+        UIService.ShowToast(res);
+    }
+
+    private void GetMachineNavCallback(Guid id)
+    {
+        NavigationManager.NavigateTo($"/Machine/{id}");
+    }
+}

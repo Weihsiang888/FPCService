@@ -1,0 +1,13 @@
+﻿@page "/TagCategories"
+@rendermode InteractiveServer
+@inject UIService UIService
+
+<TagCategorySetting />
+
+
+@code {
+    private void GetActionCallback(RequestResult res)
+    {
+        UIService.ShowToast(res);
+    }
+}

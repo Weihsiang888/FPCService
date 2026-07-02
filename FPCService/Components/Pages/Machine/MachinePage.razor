@@ -1,0 +1,22 @@
+﻿@page "/Machine/{machineId}"
+@rendermode InteractiveServer
+
+@inject MachineService machineService
+
+<MachineDashboard MachineId="@machineId" />
+
+@code {
+    [Parameter]
+    public string machineId { get; set; }
+
+    private Machine? targetMachine;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!string.IsNullOrEmpty(machineId))
+        {
+            targetMachine = await machineService.GetMachineByIDAsync(new Guid(machineId));
+        }
+        await base.OnInitializedAsync();
+    }
+}
