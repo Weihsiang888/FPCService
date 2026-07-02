@@ -1,3 +1,4 @@
 <Solution>
+  <Project Path="../CommonLibrary/CommonLibraryP/CommonLibraryP.csproj" />
   <Project Path="FPCService/FPCService.csproj" />
 </Solution>
