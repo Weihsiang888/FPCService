@@ -5,35 +5,105 @@
 @using FPCService.Services
 @inject YarnMachineSlotService YarnMachineSlotService
 @inject DataChangeNotificationService NotificationService
+@inject IJSRuntime JSRuntime
 @implements IDisposable
 
 <h3>紡紗機插槽佇列管理</h3>
 
+<div class="mb-3">
+    <button class="btn btn-primary" @onclick="ShowAddPopup">新增佇列</button>
+</div>
+
 <DxGrid Data="@queues"
-        EditMode="GridEditMode.EditRow"
-        EditModelSaving="OnEditModelSaving">
+        @ref="grid"
+        KeyFieldName="UID"
+        PageSize="20"
+        ShowFilterRow="true"
+        ShowPager="true">
     <Columns>
-        <DxGridCommandColumn Width="160px" />
-        <DxGridDataColumn FieldName="UID" Caption="序號" />
-        <DxGridDataColumn FieldName="QueueStatus" Caption="佇列狀態" />
-        <DxGridDataColumn FieldName="YarnMachineSlotUid" Caption="插槽編號" />
-        <DxGridDataColumn FieldName="YarnSpoolType" Caption="紗筒類型" />
-        <DxGridDataColumn FieldName="Floor" Caption="樓層" />
-        <DxGridDataColumn FieldName="TaskUid" Caption="任務編號" />
-        <DxGridDataColumn FieldName="PointCode" Caption="點位代碼" />
-        <DxGridDataColumn FieldName="ProcessTime" Caption="處理時間" />
-        <DxGridDataColumn FieldName="CreateTime" Caption="建立時間" />
-        <DxGridDataColumn FieldName="CompleteTime" Caption="完成時間" />
+        <DxGridDataColumn FieldName="UID" Caption="序號" Width="80px" />
+        <DxGridDataColumn FieldName="QueueStatus" Caption="佇列狀態" Width="100px" />
+        <DxGridDataColumn FieldName="YarnMachineSlotUid" Caption="插槽編號" Width="150px" />
+        <DxGridDataColumn FieldName="YarnSpoolType" Caption="紗筒類型" Width="120px" />
+        <DxGridDataColumn FieldName="Floor" Caption="樓層" Width="80px" />
+        <DxGridDataColumn FieldName="TaskUid" Caption="任務編號" Width="120px" />
+        <DxGridDataColumn FieldName="PointCode" Caption="點位代碼" Width="120px" />
+        <DxGridDataColumn FieldName="ProcessTime" Caption="處理時間" Width="150px" DisplayFormat="yyyy-MM-dd HH:mm:ss" />
+        <DxGridDataColumn FieldName="CreateTime" Caption="建立時間" Width="150px" DisplayFormat="yyyy-MM-dd HH:mm:ss" />
+        <DxGridDataColumn FieldName="CompleteTime" Caption="完成時間" Width="150px" DisplayFormat="yyyy-MM-dd HH:mm:ss" />
+        <DxGridCommandColumn Width="150px">
+            <HeaderTemplate>操作</HeaderTemplate>
+            <CellDisplayTemplate>
+                <button class="btn btn-sm btn-info" @onclick="@(() => ShowEditPopup((context.DataItem as QueueYarnMachineSlot)!))">編輯</button>
+                <button class="btn btn-sm btn-danger" @onclick="@(() => DeleteQueue((context.DataItem as QueueYarnMachineSlot)!.UID))">刪除</button>
+            </CellDisplayTemplate>
+        </DxGridCommandColumn>
     </Columns>
 </DxGrid>
 
+@if (isPopupVisible)
+{
+    <div class="modal fade show d-block" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@popupTitle</h5>
+                    <button type="button" class="btn-close" @onclick="() => isPopupVisible = false"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">佇列狀態</label>
+                            <input type="number" class="form-control" @bind="editModel.QueueStatus" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">插槽編號</label>
+                            <input class="form-control" @bind="editModel.YarnMachineSlotUid" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">紗筒類型</label>
+                            <input class="form-control" @bind="editModel.YarnSpoolType" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">樓層</label>
+                            <input type="number" class="form-control" @bind="editModel.Floor" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">任務編號</label>
+                            <input class="form-control" @bind="editModel.TaskUid" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">點位代碼</label>
+                            <input class="form-control" @bind="editModel.PointCode" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="() => isPopupVisible = false">取消</button>
+                    <button type="button" class="btn btn-primary" @onclick="SaveQueue">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+}
+
 @code {
     private List<QueueYarnMachineSlot> queues = new();
+    private IGrid? grid;
+    private bool isPopupVisible = false;
+    private bool isEditMode = false;
+    private string popupTitle = "";
+    private QueueYarnMachineSlot editModel = new();
 
     protected override async Task OnInitializedAsync()
     {
-        NotificationService.QueueYarnMachineSlotChanged += OnDataChanged;
         await LoadData();
+        NotificationService.QueueYarnMachineSlotChanged += OnDataChanged;
     }
 
     private async Task LoadData()
@@ -41,31 +111,95 @@
         queues = await YarnMachineSlotService.GetQueueYarnMachineSlotAsync();
     }
 
-    private void OnDataChanged()
+    private async void OnDataChanged()
     {
-        InvokeAsync(async () =>
+        await InvokeAsync(async () =>
         {
             await LoadData();
             StateHasChanged();
         });
     }
 
-    private async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
-    {
-        var item = (QueueYarnMachineSlot)e.EditModel;
-        if (e.IsNew)
-        {
-            await YarnMachineSlotService.InsertQueueYarnMachineSlotAsync(item);
-        }
-        else
-        {
-            await YarnMachineSlotService.UpdateQueueYarnMachineSlotAsync(item);
-        }
-        await LoadData();
-    }
-
     public void Dispose()
     {
         NotificationService.QueueYarnMachineSlotChanged -= OnDataChanged;
+    }
+
+    private void ShowAddPopup()
+    {
+        isEditMode = false;
+        popupTitle = "新增佇列";
+        editModel = new QueueYarnMachineSlot
+        {
+            QueueStatus = 0,
+            YarnMachineSlotUid = "",
+            YarnSpoolType = "",
+            Floor = 1,
+            TaskUid = "",
+            PointCode = "",
+            ProcessTime = DateTime.Now,
+            CreateTime = DateTime.Now
+        };
+        isPopupVisible = true;
+    }
+
+    private void ShowEditPopup(QueueYarnMachineSlot queue)
+    {
+        isEditMode = true;
+        popupTitle = "編輯佇列";
+        editModel = new QueueYarnMachineSlot
+        {
+            UID = queue.UID,
+            QueueStatus = queue.QueueStatus,
+            YarnMachineSlotUid = queue.YarnMachineSlotUid,
+            YarnSpoolType = queue.YarnSpoolType,
+            Floor = queue.Floor,
+            TaskUid = queue.TaskUid,
+            PointCode = queue.PointCode,
+            ProcessTime = queue.ProcessTime,
+            CreateTime = queue.CreateTime,
+            CompleteTime = queue.CompleteTime
+        };
+        isPopupVisible = true;
+    }
+
+    private async Task SaveQueue()
+    {
+        try
+        {
+            if (isEditMode)
+            {
+                await YarnMachineSlotService.UpdateQueueYarnMachineSlotAsync(editModel);
+            }
+            else
+            {
+                await YarnMachineSlotService.InsertQueueYarnMachineSlotAsync(editModel);
+            }
+            isPopupVisible = false;
+            await LoadData();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", $"保存失敗: {ex.Message}");
+        }
+    }
+
+    private async Task DeleteQueue(int uid)
+    {
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", $"確定要刪除此佇列（序號：{uid}）嗎？");
+        if (confirmed)
+        {
+            try
+            {
+                await YarnMachineSlotService.DeleteQueueYarnMachineSlotAsync(uid);
+                await LoadData();
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                await JSRuntime.InvokeVoidAsync("alert", $"刪除失敗: {ex.Message}");
+            }
+        }
     }
 }

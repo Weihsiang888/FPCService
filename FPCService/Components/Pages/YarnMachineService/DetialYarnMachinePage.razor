@@ -5,34 +5,108 @@
 @using FPCService.Services
 @inject YarnMachineService YarnMachineService
 @inject DataChangeNotificationService NotificationService
+@inject IJSRuntime JSRuntime
 @implements IDisposable
 
 <h3>紡紗機事件明細</h3>
 
+<div class="mb-3">
+    <button class="btn btn-primary" @onclick="ShowAddPopup">新增事件明細</button>
+</div>
+
 <DxGrid Data="@details"
-        EditMode="GridEditMode.EditRow"
-        EditModelSaving="OnEditModelSaving">
+        @ref="grid"
+        KeyFieldName="UID"
+        PageSize="20"
+        ShowFilterRow="true"
+        ShowPager="true">
     <Columns>
-        <DxGridCommandColumn Width="160px" />
-        <DxGridDataColumn FieldName="UID" Caption="序號" />
-        <DxGridDataColumn FieldName="YarnMachineUid" Caption="紡紗機編號" />
-        <DxGridDataColumn FieldName="YarnMachineStatus" Caption="紡紗機狀態" />
-        <DxGridDataColumn FieldName="WorderOrder" Caption="工單號碼" />
-        <DxGridDataColumn FieldName="YarnSpoolType" Caption="紗筒類型" />
-        <DxGridDataColumn FieldName="Floor" Caption="樓層" />
-        <DxGridDataColumn FieldName="YarnSpoolCompletedCount" Caption="已完成紗筒數" />
-        <DxGridDataColumn FieldName="TaskUid" Caption="任務編號" />
-        <DxGridDataColumn FieldName="OccurrenceTime" Caption="發生時間" />
+        <DxGridDataColumn FieldName="UID" Caption="序號" Width="80px" />
+        <DxGridDataColumn FieldName="YarnMachineUid" Caption="紡紗機編號" Width="150px" />
+        <DxGridDataColumn FieldName="YarnMachineStatus" Caption="紡紗機狀態" Width="120px" />
+        <DxGridDataColumn FieldName="WorderOrder" Caption="工單號碼" Width="150px" />
+        <DxGridDataColumn FieldName="YarnSpoolType" Caption="紗筒類型" Width="120px" />
+        <DxGridDataColumn FieldName="Floor" Caption="樓層" Width="80px" />
+        <DxGridDataColumn FieldName="YarnSpoolCompletedCount" Caption="已完成紗筒數" Width="150px" />
+        <DxGridDataColumn FieldName="TaskUid" Caption="任務編號" Width="120px" />
+        <DxGridDataColumn FieldName="OccurrenceTime" Caption="發生時間" Width="150px" DisplayFormat="yyyy-MM-dd HH:mm:ss" />
+        <DxGridCommandColumn Width="100px">
+            <HeaderTemplate>操作</HeaderTemplate>
+            <CellDisplayTemplate>
+                <button class="btn btn-sm btn-danger" @onclick="@(() => DeleteDetail((context.DataItem as DetialYarnMachine)!.UID))">刪除</button>
+            </CellDisplayTemplate>
+        </DxGridCommandColumn>
     </Columns>
 </DxGrid>
 
+@if (isPopupVisible)
+{
+    <div class="modal fade show d-block" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@popupTitle</h5>
+                    <button type="button" class="btn-close" @onclick="() => isPopupVisible = false"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">紡紗機編號</label>
+                            <input class="form-control" @bind="editModel.YarnMachineUid" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">紡紗機狀態</label>
+                            <input class="form-control" @bind="editModel.YarnMachineStatus" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">工單號碼</label>
+                            <input class="form-control" @bind="editModel.WorderOrder" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">紗筒類型</label>
+                            <input class="form-control" @bind="editModel.YarnSpoolType" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">樓層</label>
+                            <input type="number" class="form-control" @bind="editModel.Floor" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">已完成紗筒數</label>
+                            <input type="number" class="form-control" @bind="editModel.YarnSpoolCompletedCount" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">任務編號</label>
+                            <input class="form-control" @bind="editModel.TaskUid" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="() => isPopupVisible = false">取消</button>
+                    <button type="button" class="btn btn-primary" @onclick="SaveDetail">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+}
+
 @code {
     private List<DetialYarnMachine> details = new();
+    private IGrid? grid;
+    private bool isPopupVisible = false;
+    private string popupTitle = "";
+    private DetialYarnMachine editModel = new();
 
     protected override async Task OnInitializedAsync()
     {
-        NotificationService.DetialYarnMachineChanged += OnDataChanged;
         await LoadData();
+        NotificationService.DetialYarnMachineChanged += OnDataChanged;
     }
 
     private async Task LoadData()
@@ -40,27 +114,67 @@
         details = await YarnMachineService.GetDetialYarnMachineAsync();
     }
 
-    private void OnDataChanged()
+    private async void OnDataChanged()
     {
-        InvokeAsync(async () =>
+        await InvokeAsync(async () =>
         {
             await LoadData();
             StateHasChanged();
         });
     }
 
-    private async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
-    {
-        var item = (DetialYarnMachine)e.EditModel;
-        if (e.IsNew)
-        {
-            await YarnMachineService.InsertDetialYarnMachineAsync(item);
-        }
-        await LoadData();
-    }
-
     public void Dispose()
     {
         NotificationService.DetialYarnMachineChanged -= OnDataChanged;
+    }
+
+    private void ShowAddPopup()
+    {
+        popupTitle = "新增事件明細";
+        editModel = new DetialYarnMachine
+        {
+            YarnMachineUid = "",
+            YarnMachineStatus = "",
+            WorderOrder = "",
+            YarnSpoolType = "",
+            Floor = 1,
+            YarnSpoolCompletedCount = 0,
+            TaskUid = "",
+            OccurrenceTime = DateTime.Now
+        };
+        isPopupVisible = true;
+    }
+
+    private async Task SaveDetail()
+    {
+        try
+        {
+            await YarnMachineService.InsertDetialYarnMachineAsync(editModel);
+            isPopupVisible = false;
+            await LoadData();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", $"保存失敗: {ex.Message}");
+        }
+    }
+
+    private async Task DeleteDetail(int uid)
+    {
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", $"確定要刪除此事件明細（序號：{uid}）嗎？");
+        if (confirmed)
+        {
+            try
+            {
+                await YarnMachineService.DeleteDetialYarnMachineAsync(uid);
+                await LoadData();
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                await JSRuntime.InvokeVoidAsync("alert", $"刪除失敗: {ex.Message}");
+            }
+        }
     }
 }

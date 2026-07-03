@@ -5,33 +5,113 @@
 @using FPCService.Services
 @inject YarnMachineSlotService YarnMachineSlotService
 @inject DataChangeNotificationService NotificationService
+@inject IJSRuntime JSRuntime
 @implements IDisposable
 
 <h3>紡紗機插槽主檔管理</h3>
 
+<div class="mb-3">
+    <button class="btn btn-primary" @onclick="ShowAddPopup">新增紡紗機插槽</button>
+</div>
+
 <DxGrid Data="@yarnMachineSlots"
-        EditMode="GridEditMode.EditRow"
-        EditModelSaving="OnEditModelSaving">
+        @ref="grid"
+        KeyFieldName="YarnMachineSlotUid"
+        PageSize="20"
+        ShowFilterRow="true"
+        ShowPager="true">
     <Columns>
-        <DxGridCommandColumn Width="160px" />
-        <DxGridDataColumn FieldName="YarnMachineSlotUid" Caption="插槽編號" />
-        <DxGridDataColumn FieldName="YarnMachineUid" Caption="紡紗機編號" />
-        <DxGridDataColumn FieldName="YarnMachineSlotPoint" Caption="插槽點位" />
-        <DxGridDataColumn FieldName="YarnMachineSlotStatus" Caption="插槽狀態" />
-        <DxGridDataColumn FieldName="YarnSpoolType" Caption="紗筒類型" />
-        <DxGridDataColumn FieldName="Floor" Caption="樓層" />
-        <DxGridDataColumn FieldName="PointCode" Caption="點位代碼" />
-        <DxGridDataColumn FieldName="TaskUid" Caption="任務編號" />
+        <DxGridDataColumn FieldName="YarnMachineSlotUid" Caption="插槽編號" Width="150px" />
+        <DxGridDataColumn FieldName="YarnMachineUid" Caption="紡紗機編號" Width="150px" />
+        <DxGridDataColumn FieldName="YarnMachineSlotPoint" Caption="插槽點位" Width="120px" />
+        <DxGridDataColumn FieldName="YarnMachineSlotStatus" Caption="插槽狀態" Width="120px" />
+        <DxGridDataColumn FieldName="YarnSpoolType" Caption="紗筒類型" Width="120px" />
+        <DxGridDataColumn FieldName="Floor" Caption="樓層" Width="80px" />
+        <DxGridDataColumn FieldName="PointCode" Caption="點位代碼" Width="120px" />
+        <DxGridDataColumn FieldName="TaskUid" Caption="任務編號" Width="120px" />
+        <DxGridCommandColumn Width="150px">
+            <HeaderTemplate>操作</HeaderTemplate>
+            <CellDisplayTemplate>
+                <button class="btn btn-sm btn-info" @onclick="@(() => ShowEditPopup((context.DataItem as MainYarnMachineSlot)!))">編輯</button>
+                <button class="btn btn-sm btn-danger" @onclick="@(() => DeleteYarnMachineSlot((context.DataItem as MainYarnMachineSlot)!.YarnMachineSlotUid))">刪除</button>
+            </CellDisplayTemplate>
+        </DxGridCommandColumn>
     </Columns>
 </DxGrid>
 
+@if (isPopupVisible)
+{
+    <div class="modal fade show d-block" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@popupTitle</h5>
+                    <button type="button" class="btn-close" @onclick="() => isPopupVisible = false"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">插槽編號</label>
+                            <input class="form-control" @bind="editModel.YarnMachineSlotUid" readonly="@isEditMode" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">紡紗機編號</label>
+                            <input class="form-control" @bind="editModel.YarnMachineUid" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">插槽點位</label>
+                            <input type="number" class="form-control" @bind="editModel.YarnMachineSlotPoint" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">插槽狀態</label>
+                            <input class="form-control" @bind="editModel.YarnMachineSlotStatus" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">紗筒類型</label>
+                            <input class="form-control" @bind="editModel.YarnSpoolType" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">樓層</label>
+                            <input type="number" class="form-control" @bind="editModel.Floor" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">點位代碼</label>
+                            <input class="form-control" @bind="editModel.PointCode" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">任務編號</label>
+                            <input class="form-control" @bind="editModel.TaskUid" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="() => isPopupVisible = false">取消</button>
+                    <button type="button" class="btn btn-primary" @onclick="SaveYarnMachineSlot">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+}
+
 @code {
     private List<MainYarnMachineSlot> yarnMachineSlots = new();
+    private IGrid? grid;
+    private bool isPopupVisible = false;
+    private bool isEditMode = false;
+    private string popupTitle = "";
+    private MainYarnMachineSlot editModel = new();
 
     protected override async Task OnInitializedAsync()
     {
-        NotificationService.MainYarnMachineSlotChanged += OnDataChanged;
         await LoadData();
+        NotificationService.MainYarnMachineSlotChanged += OnDataChanged;
     }
 
     private async Task LoadData()
@@ -39,31 +119,93 @@
         yarnMachineSlots = await YarnMachineSlotService.GetMainYarnMachineSlotAsync();
     }
 
-    private void OnDataChanged()
+    private async void OnDataChanged()
     {
-        InvokeAsync(async () =>
+        await InvokeAsync(async () =>
         {
             await LoadData();
             StateHasChanged();
         });
     }
 
-    private async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
-    {
-        var item = (MainYarnMachineSlot)e.EditModel;
-        if (e.IsNew)
-        {
-            await YarnMachineSlotService.InsertMainYarnMachineSlotAsync(item);
-        }
-        else
-        {
-            await YarnMachineSlotService.UpdateMainYarnMachineSlotAsync(item);
-        }
-        await LoadData();
-    }
-
     public void Dispose()
     {
         NotificationService.MainYarnMachineSlotChanged -= OnDataChanged;
+    }
+
+    private void ShowAddPopup()
+    {
+        isEditMode = false;
+        popupTitle = "新增紡紗機插槽";
+        editModel = new MainYarnMachineSlot
+        {
+            YarnMachineSlotUid = "",
+            YarnMachineUid = "",
+            YarnMachineSlotPoint = 0,
+            YarnMachineSlotStatus = "",
+            YarnSpoolType = "",
+            Floor = 1,
+            PointCode = "",
+            TaskUid = ""
+        };
+        isPopupVisible = true;
+    }
+
+    private void ShowEditPopup(MainYarnMachineSlot slot)
+    {
+        isEditMode = true;
+        popupTitle = "編輯紡紗機插槽";
+        editModel = new MainYarnMachineSlot
+        {
+            YarnMachineSlotUid = slot.YarnMachineSlotUid,
+            YarnMachineUid = slot.YarnMachineUid,
+            YarnMachineSlotPoint = slot.YarnMachineSlotPoint,
+            YarnMachineSlotStatus = slot.YarnMachineSlotStatus,
+            YarnSpoolType = slot.YarnSpoolType,
+            Floor = slot.Floor,
+            PointCode = slot.PointCode,
+            TaskUid = slot.TaskUid
+        };
+        isPopupVisible = true;
+    }
+
+    private async Task SaveYarnMachineSlot()
+    {
+        try
+        {
+            if (isEditMode)
+            {
+                await YarnMachineSlotService.UpdateMainYarnMachineSlotAsync(editModel);
+            }
+            else
+            {
+                await YarnMachineSlotService.InsertMainYarnMachineSlotAsync(editModel);
+            }
+            isPopupVisible = false;
+            await LoadData();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", $"保存失敗: {ex.Message}");
+        }
+    }
+
+    private async Task DeleteYarnMachineSlot(string slotUid)
+    {
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", $"確定要刪除紡紗機插槽 {slotUid} 嗎？");
+        if (confirmed)
+        {
+            try
+            {
+                await YarnMachineSlotService.DeleteMainYarnMachineSlotAsync(slotUid);
+                await LoadData();
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                await JSRuntime.InvokeVoidAsync("alert", $"刪除失敗: {ex.Message}");
+            }
+        }
     }
 }

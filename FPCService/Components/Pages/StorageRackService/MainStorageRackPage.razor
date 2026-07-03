@@ -5,33 +5,113 @@
 @using FPCService.Services
 @inject StorageRackService StorageRackService
 @inject DataChangeNotificationService NotificationService
+@inject IJSRuntime JSRuntime
 @implements IDisposable
 
 <h3>儲存架主檔管理</h3>
 
+<div class="mb-3">
+    <button class="btn btn-primary" @onclick="ShowAddPopup">新增儲存架</button>
+</div>
+
 <DxGrid Data="@storageRacks"
-        EditMode="GridEditMode.EditRow"
-        EditModelSaving="OnEditModelSaving">
+        @ref="grid"
+        KeyFieldName="StorageRackUid"
+        PageSize="20"
+        ShowFilterRow="true"
+        ShowPager="true">
     <Columns>
-        <DxGridCommandColumn Width="160px" />
-        <DxGridDataColumn FieldName="StorageRackUid" Caption="儲存架編號" />
-        <DxGridDataColumn FieldName="StorageRackName" Caption="儲存架名稱" />
-        <DxGridDataColumn FieldName="StorageRackPoint" Caption="儲存架點位" />
-        <DxGridDataColumn FieldName="YarnSpoolType" Caption="紗筒類型" />
-        <DxGridDataColumn FieldName="Floor" Caption="樓層" />
-        <DxGridDataColumn FieldName="TaskUid" Caption="任務編號" />
-        <DxGridDataColumn FieldName="StorageCompletedCount" Caption="已完成數量" />
-        <DxGridDataColumn FieldName="ProcessTime" Caption="處理時間" />
+        <DxGridDataColumn FieldName="StorageRackUid" Caption="儲存架編號" Width="150px" />
+        <DxGridDataColumn FieldName="StorageRackName" Caption="儲存架名稱" Width="150px" />
+        <DxGridDataColumn FieldName="StorageRackPoint" Caption="儲存架點位" Width="120px" />
+        <DxGridDataColumn FieldName="YarnSpoolType" Caption="紗筒類型" Width="120px" />
+        <DxGridDataColumn FieldName="Floor" Caption="樓層" Width="80px" />
+        <DxGridDataColumn FieldName="TaskUid" Caption="任務編號" Width="120px" />
+        <DxGridDataColumn FieldName="StorageCompletedCount" Caption="已完成數量" Width="120px" />
+        <DxGridDataColumn FieldName="ProcessTime" Caption="處理時間" Width="150px" />
+        <DxGridCommandColumn Width="150px">
+            <HeaderTemplate>操作</HeaderTemplate>
+            <CellDisplayTemplate>
+                <button class="btn btn-sm btn-info" @onclick="@(() => ShowEditPopup((context.DataItem as MainStorageRack)!))">編輯</button>
+                <button class="btn btn-sm btn-danger" @onclick="@(() => DeleteStorageRack((context.DataItem as MainStorageRack)!.StorageRackUid))">刪除</button>
+            </CellDisplayTemplate>
+        </DxGridCommandColumn>
     </Columns>
 </DxGrid>
 
+@if (isPopupVisible)
+{
+    <div class="modal fade show d-block" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@popupTitle</h5>
+                    <button type="button" class="btn-close" @onclick="() => isPopupVisible = false"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">儲存架編號</label>
+                            <input class="form-control" @bind="editModel.StorageRackUid" readonly="@isEditMode" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">儲存架名稱</label>
+                            <input class="form-control" @bind="editModel.StorageRackName" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">儲存架點位</label>
+                            <input type="number" class="form-control" @bind="editModel.StorageRackPoint" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">紗筒類型</label>
+                            <input class="form-control" @bind="editModel.YarnSpoolType" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">樓層</label>
+                            <input type="number" class="form-control" @bind="editModel.Floor" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">任務編號</label>
+                            <input class="form-control" @bind="editModel.TaskUid" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">已完成數量</label>
+                            <input type="number" class="form-control" @bind="editModel.StorageCompletedCount" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">處理時間</label>
+                            <input type="datetime-local" class="form-control" @bind="editModel.ProcessTime" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="() => isPopupVisible = false">取消</button>
+                    <button type="button" class="btn btn-primary" @onclick="SaveStorageRack">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+}
+
 @code {
     private List<MainStorageRack> storageRacks = new();
+    private IGrid? grid;
+    private bool isPopupVisible = false;
+    private bool isEditMode = false;
+    private string popupTitle = "";
+    private MainStorageRack editModel = new();
 
     protected override async Task OnInitializedAsync()
     {
-        NotificationService.MainStorageRackChanged += OnDataChanged;
         await LoadData();
+        NotificationService.MainStorageRackChanged += OnDataChanged;
     }
 
     private async Task LoadData()
@@ -39,31 +119,93 @@
         storageRacks = await StorageRackService.GetMainStorageRackAsync();
     }
 
-    private void OnDataChanged()
+    private async void OnDataChanged()
     {
-        InvokeAsync(async () =>
+        await InvokeAsync(async () =>
         {
             await LoadData();
             StateHasChanged();
         });
     }
 
-    private async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
-    {
-        var item = (MainStorageRack)e.EditModel;
-        if (e.IsNew)
-        {
-            await StorageRackService.InsertMainStorageRackAsync(item);
-        }
-        else
-        {
-            await StorageRackService.UpdateMainStorageRackAsync(item);
-        }
-        await LoadData();
-    }
-
     public void Dispose()
     {
         NotificationService.MainStorageRackChanged -= OnDataChanged;
+    }
+
+    private void ShowAddPopup()
+    {
+        isEditMode = false;
+        popupTitle = "新增儲存架";
+        editModel = new MainStorageRack
+        {
+            StorageRackUid = "",
+            StorageRackName = "",
+            StorageRackPoint = 0,
+            YarnSpoolType = "",
+            Floor = 1,
+            TaskUid = "",
+            StorageCompletedCount = 0,
+            ProcessTime = DateTime.Now
+        };
+        isPopupVisible = true;
+    }
+
+    private void ShowEditPopup(MainStorageRack rack)
+    {
+        isEditMode = true;
+        popupTitle = "編輯儲存架";
+        editModel = new MainStorageRack
+        {
+            StorageRackUid = rack.StorageRackUid,
+            StorageRackName = rack.StorageRackName,
+            StorageRackPoint = rack.StorageRackPoint,
+            YarnSpoolType = rack.YarnSpoolType,
+            Floor = rack.Floor,
+            TaskUid = rack.TaskUid,
+            StorageCompletedCount = rack.StorageCompletedCount,
+            ProcessTime = rack.ProcessTime
+        };
+        isPopupVisible = true;
+    }
+
+    private async Task SaveStorageRack()
+    {
+        try
+        {
+            if (isEditMode)
+            {
+                await StorageRackService.UpdateMainStorageRackAsync(editModel);
+            }
+            else
+            {
+                await StorageRackService.InsertMainStorageRackAsync(editModel);
+            }
+            isPopupVisible = false;
+            await LoadData();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", $"保存失敗: {ex.Message}");
+        }
+    }
+
+    private async Task DeleteStorageRack(string storageRackUid)
+    {
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", $"確定要刪除儲存架 {storageRackUid} 嗎？");
+        if (confirmed)
+        {
+            try
+            {
+                await StorageRackService.DeleteMainStorageRackAsync(storageRackUid);
+                await LoadData();
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                await JSRuntime.InvokeVoidAsync("alert", $"刪除失敗: {ex.Message}");
+            }
+        }
     }
 }

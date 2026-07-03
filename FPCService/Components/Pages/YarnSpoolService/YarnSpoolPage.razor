@@ -5,43 +5,133 @@
 @using FPCService.Services
 @inject YarnSpoolService YarnSpoolService
 @inject DataChangeNotificationService NotificationService
+@inject IJSRuntime JSRuntime
 @implements IDisposable
 
 <h3>紗管管理</h3>
 
+<div class="mb-3">
+    <button class="btn btn-primary" @onclick="ShowAddPopup">新增紗管</button>
+</div>
+
 <DxGrid Data="@yarnSpools"
-        EditMode="GridEditMode.EditRow"
-        EditModelSaving="OnEditModelSaving">
+        @ref="grid"
+        KeyFieldName="YarnSpoolUid"
+        PageSize="20"
+        ShowFilterRow="true"
+        ShowPager="true">
     <Columns>
-        <DxGridCommandColumn Width="160px" />
-        <DxGridDataColumn FieldName="UID" Caption="序號" />
-        <DxGridDataColumn FieldName="YarnSpoolUid" Caption="紗管編號" />
-        <DxGridDataColumn FieldName="YarnSpoolStatus" Caption="紗管狀態" />
-        <DxGridDataColumn FieldName="YarnSpoolType" Caption="紗管類型" />
-        <DxGridDataColumn FieldName="AgvUid" Caption="AGV 編號" />
-        <DxGridDataColumn FieldName="PlaceUid" Caption="站點編號" />
-        <DxGridDataColumn FieldName="PlaceSlotUid" Caption="站點插槽編號" />
-        <DxGridDataColumn FieldName="StorageRackUid" Caption="儲存架編號" />
-        <DxGridDataColumn FieldName="RackSlotUid" Caption="儲存架插槽編號" />
-        <DxGridDataColumn FieldName="TaskUid" Caption="任務編號" />
-        <DxGridDataColumn FieldName="Floor" Caption="樓層" />
-        <DxGridDataColumn FieldName="ProcessTime" Caption="處理時間" />
-        <DxGridDataColumn FieldName="CreateTime" Caption="建立時間" />
-        <DxGridDataColumn FieldName="CompleteTime" Caption="完成時間" />
-        <DxGridDataColumn FieldName="PlaceTime" Caption="放置時間" />
-        <DxGridDataColumn FieldName="StorageTime" Caption="儲存時間" />
-        <DxGridDataColumn FieldName="PackagingTime" Caption="包裝時間" />
-        <DxGridDataColumn FieldName="EventTime" Caption="事件時間" />
+        <DxGridDataColumn FieldName="UID" Caption="序號" Width="80px" />
+        <DxGridDataColumn FieldName="YarnSpoolUid" Caption="紗管編號" Width="150px" />
+        <DxGridDataColumn FieldName="YarnSpoolStatus" Caption="紗管狀態" Width="120px" />
+        <DxGridDataColumn FieldName="YarnSpoolType" Caption="紗管類型" Width="120px" />
+        <DxGridDataColumn FieldName="AgvUid" Caption="AGV 編號" Width="120px" />
+        <DxGridDataColumn FieldName="PlaceUid" Caption="站點編號" Width="120px" />
+        <DxGridDataColumn FieldName="PlaceSlotUid" Caption="站點插槽編號" Width="150px" />
+        <DxGridDataColumn FieldName="StorageRackUid" Caption="儲存架編號" Width="150px" />
+        <DxGridDataColumn FieldName="RackSlotUid" Caption="儲存架插槽編號" Width="180px" />
+        <DxGridDataColumn FieldName="TaskUid" Caption="任務編號" Width="120px" />
+        <DxGridDataColumn FieldName="Floor" Caption="樓層" Width="80px" />
+        <DxGridDataColumn FieldName="ProcessTime" Caption="處理時間" Width="150px" DisplayFormat="yyyy-MM-dd HH:mm:ss" />
+        <DxGridDataColumn FieldName="CreateTime" Caption="建立時間" Width="150px" DisplayFormat="yyyy-MM-dd HH:mm:ss" />
+        <DxGridDataColumn FieldName="CompleteTime" Caption="完成時間" Width="150px" DisplayFormat="yyyy-MM-dd HH:mm:ss" />
+        <DxGridDataColumn FieldName="PlaceTime" Caption="放置時間" Width="150px" DisplayFormat="yyyy-MM-dd HH:mm:ss" />
+        <DxGridDataColumn FieldName="StorageTime" Caption="儲存時間" Width="150px" DisplayFormat="yyyy-MM-dd HH:mm:ss" />
+        <DxGridDataColumn FieldName="PackagingTime" Caption="包裝時間" Width="150px" DisplayFormat="yyyy-MM-dd HH:mm:ss" />
+        <DxGridDataColumn FieldName="EventTime" Caption="事件時間" Width="150px" DisplayFormat="yyyy-MM-dd HH:mm:ss" />
+        <DxGridCommandColumn Width="150px">
+            <HeaderTemplate>操作</HeaderTemplate>
+            <CellDisplayTemplate>
+                <button class="btn btn-sm btn-info" @onclick="@(() => ShowEditPopup((context.DataItem as YarnSpool)!))">編輯</button>
+                <button class="btn btn-sm btn-danger" @onclick="@(() => DeleteYarnSpool((context.DataItem as YarnSpool)!.YarnSpoolUid))">刪除</button>
+            </CellDisplayTemplate>
+        </DxGridCommandColumn>
     </Columns>
 </DxGrid>
 
+@if (isPopupVisible)
+{
+    <div class="modal fade show d-block" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@popupTitle</h5>
+                    <button type="button" class="btn-close" @onclick="() => isPopupVisible = false"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">紗管編號</label>
+                            <input class="form-control" @bind="editModel.YarnSpoolUid" readonly="@isEditMode" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">紗管狀態</label>
+                            <input class="form-control" @bind="editModel.YarnSpoolStatus" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">紗管類型</label>
+                            <input class="form-control" @bind="editModel.YarnSpoolType" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">AGV 編號</label>
+                            <input class="form-control" @bind="editModel.AgvUid" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">站點編號</label>
+                            <input class="form-control" @bind="editModel.PlaceUid" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">站點插槽編號</label>
+                            <input class="form-control" @bind="editModel.PlaceSlotUid" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">儲存架編號</label>
+                            <input class="form-control" @bind="editModel.StorageRackUid" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">儲存架插槽編號</label>
+                            <input class="form-control" @bind="editModel.RackSlotUid" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">任務編號</label>
+                            <input class="form-control" @bind="editModel.TaskUid" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">樓層</label>
+                            <input type="number" class="form-control" @bind="editModel.Floor" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="() => isPopupVisible = false">取消</button>
+                    <button type="button" class="btn btn-primary" @onclick="SaveYarnSpool">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+}
+
 @code {
     private List<YarnSpool> yarnSpools = new();
+    private IGrid? grid;
+    private bool isPopupVisible = false;
+    private bool isEditMode = false;
+    private string popupTitle = "";
+    private YarnSpool editModel = new();
 
     protected override async Task OnInitializedAsync()
     {
-        NotificationService.YarnSpoolChanged += OnDataChanged;
         await LoadData();
+        NotificationService.YarnSpoolChanged += OnDataChanged;
     }
 
     private async Task LoadData()
@@ -49,31 +139,107 @@
         yarnSpools = await YarnSpoolService.GetYarnSpoolAsync();
     }
 
-    private void OnDataChanged()
+    private async void OnDataChanged()
     {
-        InvokeAsync(async () =>
+        await InvokeAsync(async () =>
         {
             await LoadData();
             StateHasChanged();
         });
     }
 
-    private async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
-    {
-        var item = (YarnSpool)e.EditModel;
-        if (e.IsNew)
-        {
-            await YarnSpoolService.InsertYarnSpoolAsync(item);
-        }
-        else
-        {
-            await YarnSpoolService.UpdateYarnSpoolAsync(item);
-        }
-        await LoadData();
-    }
-
     public void Dispose()
     {
         NotificationService.YarnSpoolChanged -= OnDataChanged;
+    }
+
+    private void ShowAddPopup()
+    {
+        isEditMode = false;
+        popupTitle = "新增紗管";
+        editModel = new YarnSpool
+        {
+            YarnSpoolUid = "",
+            YarnSpoolStatus = "",
+            YarnSpoolType = "",
+            AgvUid = "",
+            PlaceUid = "",
+            PlaceSlotUid = "",
+            StorageRackUid = "",
+            RackSlotUid = "",
+            TaskUid = "",
+            Floor = 1,
+            ProcessTime = DateTime.Now,
+            CreateTime = DateTime.Now
+        };
+        isPopupVisible = true;
+    }
+
+    private void ShowEditPopup(YarnSpool yarnSpool)
+    {
+        isEditMode = true;
+        popupTitle = "編輯紗管";
+        editModel = new YarnSpool
+        {
+            UID = yarnSpool.UID,
+            YarnSpoolUid = yarnSpool.YarnSpoolUid,
+            YarnSpoolStatus = yarnSpool.YarnSpoolStatus,
+            YarnSpoolType = yarnSpool.YarnSpoolType,
+            AgvUid = yarnSpool.AgvUid,
+            PlaceUid = yarnSpool.PlaceUid,
+            PlaceSlotUid = yarnSpool.PlaceSlotUid,
+            StorageRackUid = yarnSpool.StorageRackUid,
+            RackSlotUid = yarnSpool.RackSlotUid,
+            TaskUid = yarnSpool.TaskUid,
+            Floor = yarnSpool.Floor,
+            ProcessTime = yarnSpool.ProcessTime,
+            CreateTime = yarnSpool.CreateTime,
+            CompleteTime = yarnSpool.CompleteTime,
+            PlaceTime = yarnSpool.PlaceTime,
+            StorageTime = yarnSpool.StorageTime,
+            PackagingTime = yarnSpool.PackagingTime,
+            EventTime = yarnSpool.EventTime
+        };
+        isPopupVisible = true;
+    }
+
+    private async Task SaveYarnSpool()
+    {
+        try
+        {
+            if (isEditMode)
+            {
+                await YarnSpoolService.UpdateYarnSpoolAsync(editModel);
+            }
+            else
+            {
+                await YarnSpoolService.InsertYarnSpoolAsync(editModel);
+            }
+            isPopupVisible = false;
+            await LoadData();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", $"保存失敗: {ex.Message}");
+        }
+    }
+
+    private async Task DeleteYarnSpool(string yarnSpoolUid)
+    {
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", $"確定要刪除紗管 {yarnSpoolUid} 嗎？");
+        if (confirmed)
+        {
+            try
+            {
+                await YarnSpoolService.DeleteYarnSpoolAsync(yarnSpoolUid);
+                await LoadData();
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                await JSRuntime.InvokeVoidAsync("alert", $"刪除失敗: {ex.Message}");
+            }
+        }
     }
 }

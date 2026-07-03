@@ -5,31 +5,85 @@
 @using FPCService.Services
 @inject YarnMachineSlotService YarnMachineSlotService
 @inject DataChangeNotificationService NotificationService
+@inject IJSRuntime JSRuntime
 @implements IDisposable
 
 <h3>紡紗機插槽紀錄</h3>
 
+<div class="mb-3">
+    <button class="btn btn-primary" @onclick="ShowAddPopup">新增紀錄</button>
+</div>
+
 <DxGrid Data="@logs"
-        EditMode="GridEditMode.EditRow"
-        EditModelSaving="OnEditModelSaving">
+        @ref="grid"
+        KeyFieldName="UID"
+        PageSize="20"
+        ShowFilterRow="true"
+        ShowPager="true">
     <Columns>
-        <DxGridCommandColumn Width="160px" />
-        <DxGridDataColumn FieldName="UID" Caption="序號" />
-        <DxGridDataColumn FieldName="YarnMachineSlotUid" Caption="插槽編號" />
-        <DxGridDataColumn FieldName="Floor" Caption="樓層" />
-        <DxGridDataColumn FieldName="TaskUid" Caption="任務編號" />
-        <DxGridDataColumn FieldName="Message" Caption="訊息" />
-        <DxGridDataColumn FieldName="ProcessTime" Caption="處理時間" />
+        <DxGridDataColumn FieldName="UID" Caption="序號" Width="80px" />
+        <DxGridDataColumn FieldName="YarnMachineSlotUid" Caption="插槽編號" Width="150px" />
+        <DxGridDataColumn FieldName="Floor" Caption="樓層" Width="80px" />
+        <DxGridDataColumn FieldName="TaskUid" Caption="任務編號" Width="120px" />
+        <DxGridDataColumn FieldName="Message" Caption="訊息" Width="300px" />
+        <DxGridDataColumn FieldName="ProcessTime" Caption="處理時間" Width="150px" DisplayFormat="yyyy-MM-dd HH:mm:ss" />
     </Columns>
 </DxGrid>
 
+@if (isPopupVisible)
+{
+    <div class="modal fade show d-block" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@popupTitle</h5>
+                    <button type="button" class="btn-close" @onclick="() => isPopupVisible = false"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">插槽編號</label>
+                            <input class="form-control" @bind="editModel.YarnMachineSlotUid" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">樓層</label>
+                            <input type="number" class="form-control" @bind="editModel.Floor" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">任務編號</label>
+                            <input class="form-control" @bind="editModel.TaskUid" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">訊息</label>
+                            <textarea class="form-control" rows="3" @bind="editModel.Message"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="() => isPopupVisible = false">取消</button>
+                    <button type="button" class="btn btn-primary" @onclick="SaveLog">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+}
+
 @code {
     private List<LogYarnMachineSlot> logs = new();
+    private IGrid? grid;
+    private bool isPopupVisible = false;
+    private string popupTitle = "";
+    private LogYarnMachineSlot editModel = new();
 
     protected override async Task OnInitializedAsync()
     {
-        NotificationService.LogYarnMachineSlotChanged += OnDataChanged;
         await LoadData();
+        NotificationService.LogYarnMachineSlotChanged += OnDataChanged;
     }
 
     private async Task LoadData()
@@ -37,27 +91,46 @@
         logs = await YarnMachineSlotService.GetLogYarnMachineSlotAsync();
     }
 
-    private void OnDataChanged()
+    private async void OnDataChanged()
     {
-        InvokeAsync(async () =>
+        await InvokeAsync(async () =>
         {
             await LoadData();
             StateHasChanged();
         });
     }
 
-    private async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
-    {
-        var item = (LogYarnMachineSlot)e.EditModel;
-        if (e.IsNew)
-        {
-            await YarnMachineSlotService.InsertLogYarnMachineSlotAsync(item);
-        }
-        await LoadData();
-    }
-
     public void Dispose()
     {
         NotificationService.LogYarnMachineSlotChanged -= OnDataChanged;
+    }
+
+    private void ShowAddPopup()
+    {
+        popupTitle = "新增紀錄";
+        editModel = new LogYarnMachineSlot
+        {
+            YarnMachineSlotUid = "",
+            Floor = 1,
+            TaskUid = "",
+            Message = "",
+            ProcessTime = DateTime.Now
+        };
+        isPopupVisible = true;
+    }
+
+    private async Task SaveLog()
+    {
+        try
+        {
+            await YarnMachineSlotService.InsertLogYarnMachineSlotAsync(editModel);
+            isPopupVisible = false;
+            await LoadData();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", $"保存失敗: {ex.Message}");
+        }
     }
 }
