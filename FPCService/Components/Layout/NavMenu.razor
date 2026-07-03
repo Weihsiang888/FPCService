@@ -1,18 +1,35 @@
 ﻿@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
 @implements IDisposable
 
-<div>
-    <DxMenu Orientation="@Orientation.Vertical" CssClass="menu">
-        <Items>
-            <DxMenuItem NavigateUrl="/" Text="Home" CssClass="@MenuItemCssClass("/")" IconCssClass="icon icon-home"></DxMenuItem>
-            <DxMenuItem NavigateUrl="/counter" Text="Counter" CssClass="@MenuItemCssClass("/counter")" IconCssClass="icon icon-counter"></DxMenuItem>
-            <DxMenuItem NavigateUrl="/weather" Text="Weather" CssClass="@MenuItemCssClass("/weather")" IconCssClass="icon icon-weather"></DxMenuItem>
-        </Items>
-    </DxMenu>
-</div>
+<nav class="horizontal-nav" @onclick="CloseDropdownIfOpen">
+    <ul class="nav-items">
+        <li class="nav-item">
+            <a href="/" class="nav-link @(IsActive("/") ? "active" : "")">
+                Home
+            </a>
+        </li>
+        <li class="nav-item dropdown @(isDropdownOpen ? "show" : "")">
+            <button class="nav-link dropdown-toggle @(IsActiveParent("/mobilerobot") ? "active" : "")" 
+                    type="button"
+                    @onclick="ToggleDropdown"
+                    @onclick:stopPropagation="true">
+                移動車管理
+            </button>
+            <ul class="dropdown-menu @(isDropdownOpen ? "show" : "")" @onclick:stopPropagation="true">
+                <li><a href="/mobilerobot/main" class="dropdown-item @(IsActive("/mobilerobot/main") ? "active" : "")" @onclick="CloseDropdown">主檔管理</a></li>
+                <li><a href="/mobilerobot/detail" class="dropdown-item @(IsActive("/mobilerobot/detail") ? "active" : "")" @onclick="CloseDropdown">事件明細</a></li>
+                <li><a href="/mobilerobot/log" class="dropdown-item @(IsActive("/mobilerobot/log") ? "active" : "")" @onclick="CloseDropdown">事件紀錄</a></li>
+                <li><a href="/mobilerobot/point" class="dropdown-item @(IsActive("/mobilerobot/point") ? "active" : "")" @onclick="CloseDropdown">點位管理</a></li>
+                <li><a href="/mobilerobot/queue" class="dropdown-item @(IsActive("/mobilerobot/queue") ? "active" : "")" @onclick="CloseDropdown">任務佇列管理</a></li>
+            </ul>
+        </li>
+    </ul>
+</nav>
 
 @code {
     private string? currentLocalPath;
+    private bool isDropdownOpen = false;
 
     protected override void OnInitialized() {
         currentLocalPath = new Uri(NavigationManager.Uri).LocalPath;
@@ -21,11 +38,33 @@
 
     private void OnLocationChanged(object? sender, LocationChangedEventArgs e) {
         currentLocalPath = new Uri(NavigationManager.Uri).LocalPath;
+        isDropdownOpen = false; // 導航時關閉下拉選單
         InvokeAsync(StateHasChanged);
     }
 
-    private string? MenuItemCssClass(string itemPath) {
-        return string.Equals(currentLocalPath, itemPath, StringComparison.OrdinalIgnoreCase) ? "menu-item-active" : null;
+    private void ToggleDropdown() {
+        isDropdownOpen = !isDropdownOpen;
+        StateHasChanged();
+    }
+
+    private void CloseDropdown() {
+        isDropdownOpen = false;
+        StateHasChanged();
+    }
+
+    private void CloseDropdownIfOpen() {
+        if (isDropdownOpen) {
+            isDropdownOpen = false;
+            StateHasChanged();
+        }
+    }
+
+    private bool IsActive(string path) {
+        return string.Equals(currentLocalPath, path, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private bool IsActiveParent(string parentPath) {
+        return currentLocalPath?.StartsWith(parentPath + "/", StringComparison.OrdinalIgnoreCase) == true;
     }
 
     public void Dispose() {
