@@ -1,0 +1,182 @@
+@page "/mobilerobot/queue"
+@rendermode InteractiveServer
+@using FPCService.Data
+@using FPCService.Services.MobileRobot
+@using FPCService.Services
+@inject MobileRobotService MobileRobotService
+@inject DataChangeNotificationService NotificationService
+@inject IJSRuntime JSRuntime
+@implements IDisposable
+
+<h3>行動機器人任務佇列管理</h3>
+
+<div class="mb-3">
+    <button class="btn btn-primary" @onclick="ShowAddPopup">新增佇列任務</button>
+</div>
+
+<DxGrid Data="@queues"
+        @ref="grid"
+        KeyFieldName="UID"
+        PageSize="20"
+        ShowFilterRow="true"
+        ShowPager="true">
+    <Columns>
+        <DxGridDataColumn FieldName="UID" Caption="序號" Width="100px" />
+        <DxGridDataColumn FieldName="QueueStatus" Caption="佇列狀態" Width="120px" />
+        <DxGridDataColumn FieldName="MobileRobotUid" Caption="機器人編號" Width="150px" />
+        <DxGridDataColumn FieldName="TaskUid" Caption="任務編號" Width="150px" />
+        <DxGridDataColumn FieldName="PointCode" Caption="點位代碼" Width="150px" />
+        <DxGridDataColumn FieldName="Floor" Caption="樓層" Width="100px" />
+        <DxGridDataColumn FieldName="ProcessTime" Caption="處理時間" Width="150px" DisplayFormat="yyyy-MM-dd HH:mm:ss" />
+        <DxGridDataColumn FieldName="CreateTime" Caption="建立時間" Width="150px" DisplayFormat="yyyy-MM-dd HH:mm:ss" />
+        <DxGridDataColumn FieldName="CompleteTime" Caption="完成時間" Width="150px" DisplayFormat="yyyy-MM-dd HH:mm:ss" />
+        <DxGridCommandColumn Width="150px">
+            <HeaderTemplate>操作</HeaderTemplate>
+            <CellDisplayTemplate>
+                <button class="btn btn-sm btn-info" @onclick="@(() => ShowEditPopup((context.DataItem as QueueMobileRobot)!))">編輯</button>
+                <button class="btn btn-sm btn-danger" @onclick="@(() => DeleteQueue((context.DataItem as QueueMobileRobot)!.UID))">刪除</button>
+            </CellDisplayTemplate>
+        </DxGridCommandColumn>
+    </Columns>
+</DxGrid>
+
+@if (isPopupVisible)
+{
+    <div class="modal fade show d-block" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@popupTitle</h5>
+                    <button type="button" class="btn-close" @onclick="() => isPopupVisible = false"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">佇列狀態</label>
+                        <input type="number" class="form-control" @bind="editModel.QueueStatus" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">機器人編號</label>
+                        <input class="form-control" @bind="editModel.MobileRobotUid" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">任務編號</label>
+                        <input class="form-control" @bind="editModel.TaskUid" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">點位代碼</label>
+                        <input class="form-control" @bind="editModel.PointCode" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">樓層</label>
+                        <input type="number" class="form-control" @bind="editModel.Floor" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" @onclick="SaveQueue">儲存</button>
+                    <button class="btn btn-secondary" @onclick="() => isPopupVisible = false">取消</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+}
+
+@code {
+    private List<QueueMobileRobot> queues = new();
+    private IGrid? grid;
+    private bool isPopupVisible = false;
+    private bool isEditMode = false;
+    private string popupTitle = "";
+    private QueueMobileRobot editModel = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+        NotificationService.QueueMobileRobotChanged += OnDataChanged;
+    }
+
+    private async Task LoadData()
+    {
+        queues = await MobileRobotService.GetQueueMobileRobotAsync();
+    }
+
+    private async void OnDataChanged()
+    {
+        await InvokeAsync(async () =>
+        {
+            await LoadData();
+            StateHasChanged();
+        });
+    }
+
+    public void Dispose()
+    {
+        NotificationService.QueueMobileRobotChanged -= OnDataChanged;
+    }
+
+    private void ShowAddPopup()
+    {
+        isEditMode = false;
+        popupTitle = "新增佇列任務";
+        editModel = new QueueMobileRobot
+        {
+            ProcessTime = DateTime.Now,
+            CreateTime = DateTime.Now,
+            Floor = 1,
+            QueueStatus = 0,
+            MobileRobotUid = "",
+            TaskUid = "",
+            PointCode = ""
+        };
+        isPopupVisible = true;
+    }
+
+    private void ShowEditPopup(QueueMobileRobot queue)
+    {
+        isEditMode = true;
+        popupTitle = "編輯佇列任務";
+        editModel = new QueueMobileRobot
+        {
+            UID = queue.UID,
+            QueueStatus = queue.QueueStatus,
+            MobileRobotUid = queue.MobileRobotUid,
+            TaskUid = queue.TaskUid,
+            PointCode = queue.PointCode,
+            Floor = queue.Floor,
+            ProcessTime = queue.ProcessTime,
+            CreateTime = queue.CreateTime,
+            CompleteTime = queue.CompleteTime
+        };
+        isPopupVisible = true;
+    }
+
+    private async Task SaveQueue()
+    {
+        editModel.ProcessTime = DateTime.Now;
+
+        bool success;
+        if (isEditMode)
+        {
+            success = await MobileRobotService.UpdateQueueMobileRobotAsync(editModel);
+        }
+        else
+        {
+            success = await MobileRobotService.InsertQueueMobileRobotAsync(editModel);
+        }
+
+        if (success)
+        {
+            isPopupVisible = false;
+            // 不需要手動呼叫 LoadData，通知機制會自動觸發
+        }
+    }
+
+    private async Task DeleteQueue(int uid)
+    {
+        if (await JSRuntime.InvokeAsync<bool>("confirm", $"確定要刪除佇列任務 {uid} 嗎？"))
+        {
+            await MobileRobotService.DeleteQueueMobileRobotAsync(uid);
+            // 不需要手動呼叫 LoadData，通知機制會自動觸發
+        }
+    }
+}

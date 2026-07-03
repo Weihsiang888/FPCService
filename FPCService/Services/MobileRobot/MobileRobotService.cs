@@ -6,10 +6,14 @@ namespace FPCService.Services.MobileRobot
     public class MobileRobotService
     {
         private readonly IDbContextFactory<DSDBContext> _dbContextFactory;
+        private readonly DataChangeNotificationService _notificationService;
 
-        public MobileRobotService(IDbContextFactory<DSDBContext> dbContextFactory)
+        public MobileRobotService(
+            IDbContextFactory<DSDBContext> dbContextFactory,
+            DataChangeNotificationService notificationService)
         {
             _dbContextFactory = dbContextFactory;
+            _notificationService = notificationService;
         }
 
         #region MainMobileRobot CRUD
@@ -40,7 +44,9 @@ namespace FPCService.Services.MobileRobot
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
             db.MainMobileRobot.Add(entity);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyMainMobileRobotChanged();
+            return result;
         }
 
         /// <summary>
@@ -50,7 +56,9 @@ namespace FPCService.Services.MobileRobot
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
             db.MainMobileRobot.Update(entity);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyMainMobileRobotChanged();
+            return result;
         }
 
         /// <summary>
@@ -63,7 +71,9 @@ namespace FPCService.Services.MobileRobot
             if (item == null) return false;
 
             db.MainMobileRobot.Remove(item);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyMainMobileRobotChanged();
+            return result;
         }
 
         #endregion
@@ -96,7 +106,9 @@ namespace FPCService.Services.MobileRobot
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
             db.DetialMobileRobot.Add(entity);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyDetialMobileRobotChanged();
+            return result;
         }
 
         /// <summary>
@@ -109,7 +121,9 @@ namespace FPCService.Services.MobileRobot
             if (item == null) return false;
 
             db.DetialMobileRobot.Remove(item);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyDetialMobileRobotChanged();
+            return result;
         }
 
         #endregion
@@ -142,7 +156,9 @@ namespace FPCService.Services.MobileRobot
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
             db.MobileRobotPoint.Add(entity);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyMobileRobotPointChanged();
+            return result;
         }
 
         /// <summary>
@@ -152,7 +168,9 @@ namespace FPCService.Services.MobileRobot
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
             db.MobileRobotPoint.Update(entity);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyMobileRobotPointChanged();
+            return result;
         }
 
         /// <summary>
@@ -165,7 +183,9 @@ namespace FPCService.Services.MobileRobot
             if (item == null) return false;
 
             db.MobileRobotPoint.Remove(item);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyMobileRobotPointChanged();
+            return result;
         }
 
         #endregion
@@ -188,7 +208,9 @@ namespace FPCService.Services.MobileRobot
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
             db.QueueMobileRobot.Add(entity);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyQueueMobileRobotChanged();
+            return result;
         }
 
         /// <summary>
@@ -198,7 +220,9 @@ namespace FPCService.Services.MobileRobot
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
             db.QueueMobileRobot.Update(entity);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyQueueMobileRobotChanged();
+            return result;
         }
 
         /// <summary>
@@ -211,7 +235,9 @@ namespace FPCService.Services.MobileRobot
             if (item == null) return false;
 
             db.QueueMobileRobot.Remove(item);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyQueueMobileRobotChanged();
+            return result;
         }
 
         #endregion
@@ -234,7 +260,9 @@ namespace FPCService.Services.MobileRobot
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
             db.LogMobileRobot.Add(entity);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyLogMobileRobotChanged();
+            return result;
         }
 
         #endregion

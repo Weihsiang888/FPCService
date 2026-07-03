@@ -1,0 +1,195 @@
+@page "/mobilerobot/main"
+@rendermode InteractiveServer
+@using FPCService.Data
+@using FPCService.Services.MobileRobot
+@using FPCService.Services
+@inject MobileRobotService MobileRobotService
+@inject DataChangeNotificationService NotificationService
+@inject IJSRuntime JSRuntime
+@implements IDisposable
+
+<h3>行動機器人主檔管理</h3>
+
+<div class="mb-3">
+    <button class="btn btn-primary" @onclick="ShowAddPopup">新增行動器人</button>
+</div>
+
+<DxGrid Data="@robots"
+        @ref="grid"
+        KeyFieldName="MobileRobotUid"
+        PageSize="20"
+        ShowFilterRow="true"
+        ShowPager="true">
+    <Columns>
+        <DxGridDataColumn FieldName="MobileRobotUid" Caption="機器人編號" Width="150px" />
+        <DxGridDataColumn FieldName="MobileRobotStatus" Caption="狀態" Width="120px" />
+        <DxGridDataColumn FieldName="MobileRobotType" Caption="類型" Width="120px" />
+        <DxGridDataColumn FieldName="SwarmCoreId" Caption="SwarmCore ID" Width="150px" />
+        <DxGridDataColumn FieldName="PlaceUid" Caption="場域編號" Width="150px" />
+        <DxGridDataColumn FieldName="Floor" Caption="樓層" Width="100px" />
+        <DxGridDataColumn FieldName="Battery" Caption="電量 %" Width="100px" />
+        <DxGridDataColumn FieldName="TaskUid" Caption="任務編號" Width="150px" />
+        <DxGridDataColumn FieldName="ProcessTime" Caption="處理時間" Width="150px" DisplayFormat="yyyy-MM-dd HH:mm:ss" />
+        <DxGridCommandColumn Width="150px">
+            <HeaderTemplate>操作</HeaderTemplate>
+            <CellDisplayTemplate>
+                <button class="btn btn-sm btn-info" @onclick="@(() => ShowEditPopup((context.DataItem as MainMobileRobot)!))">編輯</button>
+                <button class="btn btn-sm btn-danger" @onclick="@(() => DeleteRobot((context.DataItem as MainMobileRobot)!.MobileRobotUid))">刪除</button>
+            </CellDisplayTemplate>
+        </DxGridCommandColumn>
+    </Columns>
+</DxGrid>
+
+@if (isPopupVisible)
+{
+    <div class="modal fade show d-block" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@popupTitle</h5>
+                    <button type="button" class="btn-close" @onclick="() => isPopupVisible = false"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">機器人編號</label>
+                        <input class="form-control" @bind="editModel.MobileRobotUid" readonly="@isEditMode" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">狀態</label>
+                        <input class="form-control" @bind="editModel.MobileRobotStatus" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">類型</label>
+                        <input class="form-control" @bind="editModel.MobileRobotType" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">SwarmCore ID</label>
+                        <input class="form-control" @bind="editModel.SwarmCoreId" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">場域編號</label>
+                        <input class="form-control" @bind="editModel.PlaceUid" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">樓層</label>
+                        <input type="number" class="form-control" @bind="editModel.Floor" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">電量 %</label>
+                        <input type="number" class="form-control" @bind="editModel.Battery" min="0" max="100" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">任務編號</label>
+                        <input class="form-control" @bind="editModel.TaskUid" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" @onclick="SaveRobot">儲存</button>
+                    <button class="btn btn-secondary" @onclick="() => isPopupVisible = false">取消</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+}
+
+@code {
+    private List<MainMobileRobot> robots = new();
+    private IGrid? grid;
+    private bool isPopupVisible = false;
+    private bool isEditMode = false;
+    private string popupTitle = "";
+    private MainMobileRobot editModel = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+        NotificationService.MainMobileRobotChanged += OnDataChanged;
+    }
+
+    private async Task LoadData()
+    {
+        robots = await MobileRobotService.GetMainMobileRobotAsync();
+    }
+
+    private async void OnDataChanged()
+    {
+        await InvokeAsync(async () =>
+        {
+            await LoadData();
+            StateHasChanged();
+        });
+    }
+
+    public void Dispose()
+    {
+        NotificationService.MainMobileRobotChanged -= OnDataChanged;
+    }
+
+    private void ShowAddPopup()
+    {
+        isEditMode = false;
+        popupTitle = "新增行動機器人";
+        editModel = new MainMobileRobot
+        {
+            ProcessTime = DateTime.Now,
+            Floor = 1,
+            MobileRobotStatus = "",
+            MobileRobotType = "",
+            SwarmCoreId = "",
+            PlaceUid = "",
+            TaskUid = "",
+            MobileRobotUid = ""
+        };
+        isPopupVisible = true;
+    }
+
+    private void ShowEditPopup(MainMobileRobot robot)
+    {
+        isEditMode = true;
+        popupTitle = "編輯行動機器人";
+        editModel = new MainMobileRobot
+        {
+            MobileRobotUid = robot.MobileRobotUid,
+            MobileRobotStatus = robot.MobileRobotStatus,
+            MobileRobotType = robot.MobileRobotType,
+            SwarmCoreId = robot.SwarmCoreId,
+            PlaceUid = robot.PlaceUid,
+            Floor = robot.Floor,
+            Battery = robot.Battery,
+            TaskUid = robot.TaskUid,
+            ProcessTime = robot.ProcessTime
+        };
+        isPopupVisible = true;
+    }
+
+    private async Task SaveRobot()
+    {
+        editModel.ProcessTime = DateTime.Now;
+
+        bool success;
+        if (isEditMode)
+        {
+            success = await MobileRobotService.UpdateMainMobileRobotAsync(editModel);
+        }
+        else
+        {
+            success = await MobileRobotService.InsertMainMobileRobotAsync(editModel);
+        }
+
+        if (success)
+        {
+            isPopupVisible = false;
+            // 不需要手動呼叫 LoadData，通知機制會自動觸發
+        }
+    }
+
+    private async Task DeleteRobot(string uid)
+    {
+        if (await JSRuntime.InvokeAsync<bool>("confirm", $"確定要刪除機器人 {uid} 嗎？"))
+        {
+            await MobileRobotService.DeleteMainMobileRobotAsync(uid);
+            // 不需要手動呼叫 LoadData，通知機制會自動觸發
+        }
+    }
+}

@@ -17,6 +17,9 @@ namespace FPCService.Services
         /// </summary>
         public static IServiceCollection AddDomainServices(this IServiceCollection services)
         {
+            // 資料變更通知服務（Singleton 讓所有 Scoped 服務共用同一個實例）
+            services.AddSingleton<DataChangeNotificationService>();
+
             // YarnMachine 領域
             services.AddScoped<YarnMachineService>();
             services.AddScoped<YarnMachineSlotService>();

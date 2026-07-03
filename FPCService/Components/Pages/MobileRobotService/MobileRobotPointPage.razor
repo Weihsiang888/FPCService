@@ -1,0 +1,177 @@
+@page "/mobilerobot/point"
+@rendermode InteractiveServer
+@using FPCService.Data
+@using FPCService.Services.MobileRobot
+@using FPCService.Services
+@inject MobileRobotService MobileRobotService
+@inject DataChangeNotificationService NotificationService
+@inject IJSRuntime JSRuntime
+@implements IDisposable
+
+<h3>行動機器人點位管理</h3>
+
+<div class="mb-3">
+    <button class="btn btn-primary" @onclick="ShowAddPopup">新增點位</button>
+</div>
+
+<DxGrid Data="@points"
+        @ref="grid"
+        KeyFieldName="PointCode"
+        PageSize="20"
+        ShowFilterRow="true"
+        ShowPager="true">
+    <Columns>
+        <DxGridDataColumn FieldName="PointCode" Caption="點位代碼" Width="120px" />
+        <DxGridDataColumn FieldName="PointUid" Caption="點位編號" Width="150px" />
+        <DxGridDataColumn FieldName="PointName" Caption="點位名稱" Width="200px" />
+        <DxGridDataColumn FieldName="PointNumber" Caption="點位號碼" Width="120px" />
+        <DxGridDataColumn FieldName="PointArea" Caption="點位區域" Width="150px" />
+        <DxGridDataColumn FieldName="Floor" Caption="樓層" Width="100px" />
+        <DxGridCommandColumn Width="150px">
+            <HeaderTemplate>操作</HeaderTemplate>
+            <CellDisplayTemplate>
+                <button class="btn btn-sm btn-info" @onclick="@(() => ShowEditPopup((context.DataItem as MobileRobotPoint)!))">編輯</button>
+                <button class="btn btn-sm btn-danger" @onclick="@(() => DeletePoint((context.DataItem as MobileRobotPoint)!.PointCode))">刪除</button>
+            </CellDisplayTemplate>
+        </DxGridCommandColumn>
+    </Columns>
+</DxGrid>
+
+@if (isPopupVisible)
+{
+    <div class="modal fade show d-block" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@popupTitle</h5>
+                    <button type="button" class="btn-close" @onclick="() => isPopupVisible = false"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">點位代碼</label>
+                        <input class="form-control" @bind="editModel.PointCode" readonly="@isEditMode" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">點位編號</label>
+                        <input class="form-control" @bind="editModel.PointUid" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">點位名稱</label>
+                        <input class="form-control" @bind="editModel.PointName" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">點位號碼</label>
+                        <input type="number" class="form-control" @bind="editModel.PointNumber" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">點位區域</label>
+                        <input class="form-control" @bind="editModel.PointArea" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">樓層</label>
+                        <input type="number" class="form-control" @bind="editModel.Floor" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" @onclick="SavePoint">儲存</button>
+                    <button class="btn btn-secondary" @onclick="() => isPopupVisible = false">取消</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+}
+
+@code {
+    private List<MobileRobotPoint> points = new();
+    private IGrid? grid;
+    private bool isPopupVisible = false;
+    private bool isEditMode = false;
+    private string popupTitle = "";
+    private MobileRobotPoint editModel = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+        NotificationService.MobileRobotPointChanged += OnDataChanged;
+    }
+
+    private async Task LoadData()
+    {
+        points = await MobileRobotService.GetMobileRobotPointAsync();
+    }
+
+    private async void OnDataChanged()
+    {
+        await InvokeAsync(async () =>
+        {
+            await LoadData();
+            StateHasChanged();
+        });
+    }
+
+    public void Dispose()
+    {
+        NotificationService.MobileRobotPointChanged -= OnDataChanged;
+    }
+
+    private void ShowAddPopup()
+    {
+        isEditMode = false;
+        popupTitle = "新增點位";
+        editModel = new MobileRobotPoint
+        {
+            Floor = 1,
+            PointNumber = 0,
+            PointCode = "",
+            PointUid = "",
+            PointName = "",
+            PointArea = ""
+        };
+        isPopupVisible = true;
+    }
+
+    private void ShowEditPopup(MobileRobotPoint point)
+    {
+        isEditMode = true;
+        popupTitle = "編輯點位";
+        editModel = new MobileRobotPoint
+        {
+            PointCode = point.PointCode,
+            PointUid = point.PointUid,
+            PointName = point.PointName,
+            PointNumber = point.PointNumber,
+            PointArea = point.PointArea,
+            Floor = point.Floor
+        };
+        isPopupVisible = true;
+    }
+
+    private async Task SavePoint()
+    {
+        bool success;
+        if (isEditMode)
+        {
+            success = await MobileRobotService.UpdateMobileRobotPointAsync(editModel);
+        }
+        else
+        {
+            success = await MobileRobotService.InsertMobileRobotPointAsync(editModel);
+        }
+
+        if (success)
+        {
+            isPopupVisible = false;
+            // 不需要手動呼叫 LoadData，通知機制會自動觸發
+        }
+    }
+
+    private async Task DeletePoint(string pointCode)
+    {
+        if (await JSRuntime.InvokeAsync<bool>("confirm", $"確定要刪除點位 {pointCode} 嗎？"))
+        {
+            await MobileRobotService.DeleteMobileRobotPointAsync(pointCode);
+            // 不需要手動呼叫 LoadData，通知機制會自動觸發
+        }
+    }
+}
