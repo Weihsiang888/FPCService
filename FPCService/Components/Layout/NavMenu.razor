@@ -53,6 +53,21 @@
                 <li><a href="/placeslot/queue" class="dropdown-item @(IsActive("/placeslot/queue") ? "active" : "")" @onclick="CloseAllDropdowns">插槽佇列管理</a></li>
             </ul>
         </li>
+        <li class="nav-item dropdown @(isDropdownOpen_StorageRack ? "show" : "")">
+            <button class="nav-link dropdown-toggle @(IsActiveParent("/storagerack") ? "active" : "")" 
+                    type="button"
+                    @onclick="() => ToggleDropdown(ref isDropdownOpen_StorageRack)"
+                    @onclick:stopPropagation="true">
+                紗卷下料區管理
+            </button>
+            <ul class="dropdown-menu @(isDropdownOpen_StorageRack ? "show" : "")" @onclick:stopPropagation="true">
+                <li><a href="/storagerack/main" class="dropdown-item @(IsActive("/storagerack/main") ? "active" : "")" @onclick="CloseAllDropdowns">儲存架管理</a></li>
+                <li><a href="/rackslot/main" class="dropdown-item @(IsActive("/rackslot/main") ? "active" : "")" @onclick="CloseAllDropdowns">儲存架插槽主檔管理</a></li>
+                <li><a href="/rackslot/detail" class="dropdown-item @(IsActive("/rackslot/detail") ? "active" : "")" @onclick="CloseAllDropdowns">儲存架插槽事件明細</a></li>
+                <li><a href="/rackslot/log" class="dropdown-item @(IsActive("/rackslot/log") ? "active" : "")" @onclick="CloseAllDropdowns">儲存架插槽紀錄</a></li>
+                <li><a href="/rackslot/queue" class="dropdown-item @(IsActive("/rackslot/queue") ? "active" : "")" @onclick="CloseAllDropdowns">儲存架插槽佇列管理</a></li>
+            </ul>
+        </li>
     </ul>
 </nav>
 
@@ -61,6 +76,7 @@
     private bool isDropdownOpen_MobileRobot = false;
     private bool isDropdownOpen_Packaging = false;
     private bool isDropdownOpen_Place = false;
+    private bool isDropdownOpen_StorageRack = false;
 
     protected override void OnInitialized() {
         currentLocalPath = new Uri(NavigationManager.Uri).LocalPath;
@@ -78,6 +94,7 @@
         isDropdownOpen_MobileRobot = false;
         isDropdownOpen_Packaging = false;
         isDropdownOpen_Place = false;
+        isDropdownOpen_StorageRack = false;
 
         // 切換當前下拉選單
         dropdownState = !dropdownState;
@@ -88,6 +105,7 @@
         isDropdownOpen_MobileRobot = false;
         isDropdownOpen_Packaging = false;
         isDropdownOpen_Place = false;
+        isDropdownOpen_StorageRack = false;
         StateHasChanged();
     }
 
@@ -99,6 +117,11 @@
         if (parentPath == "/place") {
             // 對於 Place，檢查 /place 或 /placeslot 開頭的路徑
             return currentLocalPath?.StartsWith("/place", StringComparison.OrdinalIgnoreCase) == true;
+        }
+        if (parentPath == "/storagerack") {
+            // 對於 StorageRack,檢查 /storagerack 或 /rackslot 開頭的路徑
+            return currentLocalPath?.StartsWith("/storagerack", StringComparison.OrdinalIgnoreCase) == true ||
+                   currentLocalPath?.StartsWith("/rackslot", StringComparison.OrdinalIgnoreCase) == true;
         }
         return currentLocalPath?.StartsWith(parentPath + "/", StringComparison.OrdinalIgnoreCase) == true;
     }
