@@ -1,4 +1,7 @@
 ﻿using FPCService.Components;
+using FPCService.Data;
+using FPCService.Services;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting.WindowsServices;
 using Microsoft.OpenApi;
 using CommonLibraryP.LogPKG;
@@ -37,7 +40,12 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddHttpClient();
 builder.AddMachineService();
 
-// 註冊 MachineTagService
+// 註冊 DbContext Factory
+builder.Services.AddDbContextFactory<DSDBContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// 註冊所有領域服務
+builder.Services.AddDomainServices();
 
 var app = builder.Build();
 
