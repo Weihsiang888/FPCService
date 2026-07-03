@@ -1,0 +1,63 @@
+@page "/yarnmachineslot/log"
+@rendermode InteractiveServer
+@using FPCService.Data
+@using FPCService.Services.YarnMachine
+@using FPCService.Services
+@inject YarnMachineSlotService YarnMachineSlotService
+@inject DataChangeNotificationService NotificationService
+@implements IDisposable
+
+<h3>紡紗機插槽紀錄</h3>
+
+<DxGrid Data="@logs"
+        EditMode="GridEditMode.EditRow"
+        EditModelSaving="OnEditModelSaving">
+    <Columns>
+        <DxGridCommandColumn Width="160px" />
+        <DxGridDataColumn FieldName="UID" Caption="序號" />
+        <DxGridDataColumn FieldName="YarnMachineSlotUid" Caption="插槽編號" />
+        <DxGridDataColumn FieldName="Floor" Caption="樓層" />
+        <DxGridDataColumn FieldName="TaskUid" Caption="任務編號" />
+        <DxGridDataColumn FieldName="Message" Caption="訊息" />
+        <DxGridDataColumn FieldName="ProcessTime" Caption="處理時間" />
+    </Columns>
+</DxGrid>
+
+@code {
+    private List<LogYarnMachineSlot> logs = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        NotificationService.LogYarnMachineSlotChanged += OnDataChanged;
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        logs = await YarnMachineSlotService.GetLogYarnMachineSlotAsync();
+    }
+
+    private void OnDataChanged()
+    {
+        InvokeAsync(async () =>
+        {
+            await LoadData();
+            StateHasChanged();
+        });
+    }
+
+    private async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        var item = (LogYarnMachineSlot)e.EditModel;
+        if (e.IsNew)
+        {
+            await YarnMachineSlotService.InsertLogYarnMachineSlotAsync(item);
+        }
+        await LoadData();
+    }
+
+    public void Dispose()
+    {
+        NotificationService.LogYarnMachineSlotChanged -= OnDataChanged;
+    }
+}

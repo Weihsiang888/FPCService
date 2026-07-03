@@ -6,10 +6,14 @@ namespace FPCService.Services.YarnMachine
     public class YarnMachineService
     {
         private readonly IDbContextFactory<DSDBContext> _dbContextFactory;
+        private readonly DataChangeNotificationService _notificationService;
 
-        public YarnMachineService(IDbContextFactory<DSDBContext> dbContextFactory)
+        public YarnMachineService(
+            IDbContextFactory<DSDBContext> dbContextFactory,
+            DataChangeNotificationService notificationService)
         {
             _dbContextFactory = dbContextFactory;
+            _notificationService = notificationService;
         }
 
         #region MainYarnMachine CRUD
@@ -40,7 +44,9 @@ namespace FPCService.Services.YarnMachine
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
             db.MainYarnMachine.Add(entity);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyMainYarnMachineChanged();
+            return result;
         }
 
         /// <summary>
@@ -50,7 +56,9 @@ namespace FPCService.Services.YarnMachine
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
             db.MainYarnMachine.Update(entity);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyMainYarnMachineChanged();
+            return result;
         }
 
         /// <summary>
@@ -63,7 +71,9 @@ namespace FPCService.Services.YarnMachine
             if (item == null) return false;
 
             db.MainYarnMachine.Remove(item);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyMainYarnMachineChanged();
+            return result;
         }
 
         #endregion
@@ -96,7 +106,9 @@ namespace FPCService.Services.YarnMachine
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
             db.DetialYarnMachine.Add(entity);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyDetialYarnMachineChanged();
+            return result;
         }
 
         /// <summary>
@@ -109,7 +121,9 @@ namespace FPCService.Services.YarnMachine
             if (item == null) return false;
 
             db.DetialYarnMachine.Remove(item);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyDetialYarnMachineChanged();
+            return result;
         }
 
         #endregion

@@ -1,0 +1,69 @@
+@page "/yarnmachineslot/main"
+@rendermode InteractiveServer
+@using FPCService.Data
+@using FPCService.Services.YarnMachine
+@using FPCService.Services
+@inject YarnMachineSlotService YarnMachineSlotService
+@inject DataChangeNotificationService NotificationService
+@implements IDisposable
+
+<h3>紡紗機插槽主檔管理</h3>
+
+<DxGrid Data="@yarnMachineSlots"
+        EditMode="GridEditMode.EditRow"
+        EditModelSaving="OnEditModelSaving">
+    <Columns>
+        <DxGridCommandColumn Width="160px" />
+        <DxGridDataColumn FieldName="YarnMachineSlotUid" Caption="插槽編號" />
+        <DxGridDataColumn FieldName="YarnMachineUid" Caption="紡紗機編號" />
+        <DxGridDataColumn FieldName="YarnMachineSlotPoint" Caption="插槽點位" />
+        <DxGridDataColumn FieldName="YarnMachineSlotStatus" Caption="插槽狀態" />
+        <DxGridDataColumn FieldName="YarnSpoolType" Caption="紗筒類型" />
+        <DxGridDataColumn FieldName="Floor" Caption="樓層" />
+        <DxGridDataColumn FieldName="PointCode" Caption="點位代碼" />
+        <DxGridDataColumn FieldName="TaskUid" Caption="任務編號" />
+    </Columns>
+</DxGrid>
+
+@code {
+    private List<MainYarnMachineSlot> yarnMachineSlots = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        NotificationService.MainYarnMachineSlotChanged += OnDataChanged;
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        yarnMachineSlots = await YarnMachineSlotService.GetMainYarnMachineSlotAsync();
+    }
+
+    private void OnDataChanged()
+    {
+        InvokeAsync(async () =>
+        {
+            await LoadData();
+            StateHasChanged();
+        });
+    }
+
+    private async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        var item = (MainYarnMachineSlot)e.EditModel;
+        if (e.IsNew)
+        {
+            await YarnMachineSlotService.InsertMainYarnMachineSlotAsync(item);
+        }
+        else
+        {
+            await YarnMachineSlotService.UpdateMainYarnMachineSlotAsync(item);
+        }
+        await LoadData();
+    }
+
+    public void Dispose()
+    {
+        NotificationService.MainYarnMachineSlotChanged -= OnDataChanged;
+    }
+}

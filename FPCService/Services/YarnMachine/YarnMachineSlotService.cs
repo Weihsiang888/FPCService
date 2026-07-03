@@ -6,10 +6,14 @@ namespace FPCService.Services.YarnMachine
     public class YarnMachineSlotService
     {
         private readonly IDbContextFactory<DSDBContext> _dbContextFactory;
+        private readonly DataChangeNotificationService _notificationService;
 
-        public YarnMachineSlotService(IDbContextFactory<DSDBContext> dbContextFactory)
+        public YarnMachineSlotService(
+            IDbContextFactory<DSDBContext> dbContextFactory,
+            DataChangeNotificationService notificationService)
         {
             _dbContextFactory = dbContextFactory;
+            _notificationService = notificationService;
         }
 
         #region MainYarnMachineSlot CRUD
@@ -40,7 +44,9 @@ namespace FPCService.Services.YarnMachine
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
             db.MainYarnMachineSlot.Add(entity);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyMainYarnMachineSlotChanged();
+            return result;
         }
 
         /// <summary>
@@ -50,7 +56,9 @@ namespace FPCService.Services.YarnMachine
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
             db.MainYarnMachineSlot.Update(entity);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyMainYarnMachineSlotChanged();
+            return result;
         }
 
         /// <summary>
@@ -63,7 +71,9 @@ namespace FPCService.Services.YarnMachine
             if (item == null) return false;
 
             db.MainYarnMachineSlot.Remove(item);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyMainYarnMachineSlotChanged();
+            return result;
         }
 
         #endregion
@@ -96,7 +106,9 @@ namespace FPCService.Services.YarnMachine
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
             db.DetialYarnMachineSlot.Add(entity);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyDetialYarnMachineSlotChanged();
+            return result;
         }
 
         /// <summary>
@@ -109,7 +121,9 @@ namespace FPCService.Services.YarnMachine
             if (item == null) return false;
 
             db.DetialYarnMachineSlot.Remove(item);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyDetialYarnMachineSlotChanged();
+            return result;
         }
 
         #endregion
@@ -132,7 +146,9 @@ namespace FPCService.Services.YarnMachine
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
             db.QueueYarnMachineSlot.Add(entity);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyQueueYarnMachineSlotChanged();
+            return result;
         }
 
         /// <summary>
@@ -142,7 +158,9 @@ namespace FPCService.Services.YarnMachine
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
             db.QueueYarnMachineSlot.Update(entity);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyQueueYarnMachineSlotChanged();
+            return result;
         }
 
         /// <summary>
@@ -155,7 +173,9 @@ namespace FPCService.Services.YarnMachine
             if (item == null) return false;
 
             db.QueueYarnMachineSlot.Remove(item);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyQueueYarnMachineSlotChanged();
+            return result;
         }
 
         #endregion
@@ -178,7 +198,9 @@ namespace FPCService.Services.YarnMachine
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
             db.LogYarnMachineSlot.Add(entity);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyLogYarnMachineSlotChanged();
+            return result;
         }
 
         #endregion

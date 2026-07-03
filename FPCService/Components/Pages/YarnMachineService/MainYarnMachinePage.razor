@@ -1,0 +1,69 @@
+@page "/yarnmachine/main"
+@rendermode InteractiveServer
+@using FPCService.Data
+@using FPCService.Services.YarnMachine
+@using FPCService.Services
+@inject YarnMachineService YarnMachineService
+@inject DataChangeNotificationService NotificationService
+@implements IDisposable
+
+<h3>紡紗機主檔管理</h3>
+
+<DxGrid Data="@yarnMachines"
+        EditMode="GridEditMode.EditRow"
+        EditModelSaving="OnEditModelSaving">
+    <Columns>
+        <DxGridCommandColumn Width="160px" />
+        <DxGridDataColumn FieldName="YarnMachineUid" Caption="紡紗機編號" />
+        <DxGridDataColumn FieldName="YarnMachineStatus" Caption="紡紗機狀態" />
+        <DxGridDataColumn FieldName="WorderOrder" Caption="工單號碼" />
+        <DxGridDataColumn FieldName="YarnSpoolType" Caption="紗筒類型" />
+        <DxGridDataColumn FieldName="Floor" Caption="樓層" />
+        <DxGridDataColumn FieldName="YarnSpoolCompletedCount" Caption="已完成紗筒數" />
+        <DxGridDataColumn FieldName="TaskUid" Caption="任務編號" />
+        <DxGridDataColumn FieldName="ProcessTime" Caption="處理時間" />
+    </Columns>
+</DxGrid>
+
+@code {
+    private List<MainYarnMachine> yarnMachines = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        NotificationService.MainYarnMachineChanged += OnDataChanged;
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        yarnMachines = await YarnMachineService.GetMainYarnMachineAsync();
+    }
+
+    private void OnDataChanged()
+    {
+        InvokeAsync(async () =>
+        {
+            await LoadData();
+            StateHasChanged();
+        });
+    }
+
+    private async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        var item = (MainYarnMachine)e.EditModel;
+        if (e.IsNew)
+        {
+            await YarnMachineService.InsertMainYarnMachineAsync(item);
+        }
+        else
+        {
+            await YarnMachineService.UpdateMainYarnMachineAsync(item);
+        }
+        await LoadData();
+    }
+
+    public void Dispose()
+    {
+        NotificationService.MainYarnMachineChanged -= OnDataChanged;
+    }
+}

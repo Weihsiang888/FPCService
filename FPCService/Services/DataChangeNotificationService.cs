@@ -40,6 +40,16 @@ namespace FPCService.Services
         public event Action? QueueRackSlotChanged;
         public event Action? LogRackSlotChanged;
 
+        // YarnMachine 相關事件
+        public event Action? MainYarnMachineChanged;
+        public event Action? DetialYarnMachineChanged;
+
+        // YarnMachineSlot 相關事件
+        public event Action? MainYarnMachineSlotChanged;
+        public event Action? DetialYarnMachineSlotChanged;
+        public event Action? QueueYarnMachineSlotChanged;
+        public event Action? LogYarnMachineSlotChanged;
+
         // 通知方法 - MobileRobot
         public void NotifyMainMobileRobotChanged() => MainMobileRobotChanged?.Invoke();
         public void NotifyDetialMobileRobotChanged() => DetialMobileRobotChanged?.Invoke();
@@ -70,5 +80,15 @@ namespace FPCService.Services
         public void NotifyDetialRackSlotChanged() => DetialRackSlotChanged?.Invoke();
         public void NotifyQueueRackSlotChanged() => QueueRackSlotChanged?.Invoke();
         public void NotifyLogRackSlotChanged() => LogRackSlotChanged?.Invoke();
+
+        // 通知方法 - YarnMachine
+        public void NotifyMainYarnMachineChanged() => MainYarnMachineChanged?.Invoke();
+        public void NotifyDetialYarnMachineChanged() => DetialYarnMachineChanged?.Invoke();
+
+        // 通知方法 - YarnMachineSlot
+        public void NotifyMainYarnMachineSlotChanged() => MainYarnMachineSlotChanged?.Invoke();
+        public void NotifyDetialYarnMachineSlotChanged() => DetialYarnMachineSlotChanged?.Invoke();
+        public void NotifyQueueYarnMachineSlotChanged() => QueueYarnMachineSlotChanged?.Invoke();
+        public void NotifyLogYarnMachineSlotChanged() => LogYarnMachineSlotChanged?.Invoke();
     }
 }

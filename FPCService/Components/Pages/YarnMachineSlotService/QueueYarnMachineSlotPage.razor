@@ -1,0 +1,71 @@
+@page "/yarnmachineslot/queue"
+@rendermode InteractiveServer
+@using FPCService.Data
+@using FPCService.Services.YarnMachine
+@using FPCService.Services
+@inject YarnMachineSlotService YarnMachineSlotService
+@inject DataChangeNotificationService NotificationService
+@implements IDisposable
+
+<h3>紡紗機插槽佇列管理</h3>
+
+<DxGrid Data="@queues"
+        EditMode="GridEditMode.EditRow"
+        EditModelSaving="OnEditModelSaving">
+    <Columns>
+        <DxGridCommandColumn Width="160px" />
+        <DxGridDataColumn FieldName="UID" Caption="序號" />
+        <DxGridDataColumn FieldName="QueueStatus" Caption="佇列狀態" />
+        <DxGridDataColumn FieldName="YarnMachineSlotUid" Caption="插槽編號" />
+        <DxGridDataColumn FieldName="YarnSpoolType" Caption="紗筒類型" />
+        <DxGridDataColumn FieldName="Floor" Caption="樓層" />
+        <DxGridDataColumn FieldName="TaskUid" Caption="任務編號" />
+        <DxGridDataColumn FieldName="PointCode" Caption="點位代碼" />
+        <DxGridDataColumn FieldName="ProcessTime" Caption="處理時間" />
+        <DxGridDataColumn FieldName="CreateTime" Caption="建立時間" />
+        <DxGridDataColumn FieldName="CompleteTime" Caption="完成時間" />
+    </Columns>
+</DxGrid>
+
+@code {
+    private List<QueueYarnMachineSlot> queues = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        NotificationService.QueueYarnMachineSlotChanged += OnDataChanged;
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        queues = await YarnMachineSlotService.GetQueueYarnMachineSlotAsync();
+    }
+
+    private void OnDataChanged()
+    {
+        InvokeAsync(async () =>
+        {
+            await LoadData();
+            StateHasChanged();
+        });
+    }
+
+    private async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        var item = (QueueYarnMachineSlot)e.EditModel;
+        if (e.IsNew)
+        {
+            await YarnMachineSlotService.InsertQueueYarnMachineSlotAsync(item);
+        }
+        else
+        {
+            await YarnMachineSlotService.UpdateQueueYarnMachineSlotAsync(item);
+        }
+        await LoadData();
+    }
+
+    public void Dispose()
+    {
+        NotificationService.QueueYarnMachineSlotChanged -= OnDataChanged;
+    }
+}
