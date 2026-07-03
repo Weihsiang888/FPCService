@@ -6,10 +6,14 @@ namespace FPCService.Services.Place
     public class PlaceSlotService
     {
         private readonly IDbContextFactory<DSDBContext> _dbContextFactory;
+        private readonly DataChangeNotificationService _notificationService;
 
-        public PlaceSlotService(IDbContextFactory<DSDBContext> dbContextFactory)
+        public PlaceSlotService(
+            IDbContextFactory<DSDBContext> dbContextFactory,
+            DataChangeNotificationService notificationService)
         {
             _dbContextFactory = dbContextFactory;
+            _notificationService = notificationService;
         }
 
         #region MainPlaceSlot CRUD
@@ -40,7 +44,9 @@ namespace FPCService.Services.Place
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
             db.MainPlaceSlot.Add(entity);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyMainPlaceSlotChanged();
+            return result;
         }
 
         /// <summary>
@@ -50,7 +56,9 @@ namespace FPCService.Services.Place
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
             db.MainPlaceSlot.Update(entity);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyMainPlaceSlotChanged();
+            return result;
         }
 
         /// <summary>
@@ -63,7 +71,9 @@ namespace FPCService.Services.Place
             if (item == null) return false;
 
             db.MainPlaceSlot.Remove(item);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyMainPlaceSlotChanged();
+            return result;
         }
 
         #endregion
@@ -96,7 +106,9 @@ namespace FPCService.Services.Place
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
             db.DetialPlaceSlot.Add(entity);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyDetialPlaceSlotChanged();
+            return result;
         }
 
         /// <summary>
@@ -109,7 +121,9 @@ namespace FPCService.Services.Place
             if (item == null) return false;
 
             db.DetialPlaceSlot.Remove(item);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyDetialPlaceSlotChanged();
+            return result;
         }
 
         #endregion
@@ -132,7 +146,9 @@ namespace FPCService.Services.Place
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
             db.QueuePlaceSlot.Add(entity);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyQueuePlaceSlotChanged();
+            return result;
         }
 
         /// <summary>
@@ -142,7 +158,9 @@ namespace FPCService.Services.Place
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
             db.QueuePlaceSlot.Update(entity);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyQueuePlaceSlotChanged();
+            return result;
         }
 
         /// <summary>
@@ -155,7 +173,9 @@ namespace FPCService.Services.Place
             if (item == null) return false;
 
             db.QueuePlaceSlot.Remove(item);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyQueuePlaceSlotChanged();
+            return result;
         }
 
         #endregion
@@ -178,7 +198,9 @@ namespace FPCService.Services.Place
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
             db.LogPlaceSlot.Add(entity);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyLogPlaceSlotChanged();
+            return result;
         }
 
         #endregion

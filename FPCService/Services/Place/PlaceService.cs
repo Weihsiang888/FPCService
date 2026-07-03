@@ -6,10 +6,14 @@ namespace FPCService.Services.Place
     public class PlaceService
     {
         private readonly IDbContextFactory<DSDBContext> _dbContextFactory;
+        private readonly DataChangeNotificationService _notificationService;
 
-        public PlaceService(IDbContextFactory<DSDBContext> dbContextFactory)
+        public PlaceService(
+            IDbContextFactory<DSDBContext> dbContextFactory,
+            DataChangeNotificationService notificationService)
         {
             _dbContextFactory = dbContextFactory;
+            _notificationService = notificationService;
         }
 
         #region MainPlace CRUD
@@ -40,7 +44,9 @@ namespace FPCService.Services.Place
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
             db.MainPlace.Add(entity);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyMainPlaceChanged();
+            return result;
         }
 
         /// <summary>
@@ -50,7 +56,9 @@ namespace FPCService.Services.Place
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
             db.MainPlace.Update(entity);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyMainPlaceChanged();
+            return result;
         }
 
         /// <summary>
@@ -63,7 +71,9 @@ namespace FPCService.Services.Place
             if (item == null) return false;
 
             db.MainPlace.Remove(item);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyMainPlaceChanged();
+            return result;
         }
 
         #endregion

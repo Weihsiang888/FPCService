@@ -1,0 +1,140 @@
+@page "/packaging/detail"
+@rendermode InteractiveServer
+@using FPCService.Data
+@using FPCService.Services.Packaging
+@using FPCService.Services
+@inject PackagingService PackagingService
+@inject DataChangeNotificationService NotificationService
+@inject IJSRuntime JSRuntime
+@implements IDisposable
+
+<h3>包裝事件明細</h3>
+
+<div class="mb-3">
+    <button class="btn btn-primary" @onclick="ShowAddPopup">新增明細</button>
+</div>
+
+<DxGrid Data="@details"
+        @ref="grid"
+        KeyFieldName="UID"
+        PageSize="20"
+        ShowFilterRow="true"
+        ShowPager="true">
+    <Columns>
+        <DxGridDataColumn FieldName="UID" Caption="UID" Width="100px" />
+        <DxGridDataColumn FieldName="PackagingUid" Caption="包裝編號" Width="150px" />
+        <DxGridDataColumn FieldName="PackagingPoint" Caption="包裝點位" Width="120px" />
+        <DxGridDataColumn FieldName="Floor" Caption="樓層" Width="100px" />
+        <DxGridDataColumn FieldName="TaskUid" Caption="任務編號" Width="150px" />
+        <DxGridDataColumn FieldName="OccurrenceTime" Caption="發生時間" Width="150px" DisplayFormat="yyyy-MM-dd HH:mm:ss" />
+        <DxGridCommandColumn Width="100px">
+            <HeaderTemplate>操作</HeaderTemplate>
+            <CellDisplayTemplate>
+                <button class="btn btn-sm btn-danger" @onclick="@(() => DeleteDetail((context.DataItem as DetialPackaging)!.UID))">刪除</button>
+            </CellDisplayTemplate>
+        </DxGridCommandColumn>
+    </Columns>
+</DxGrid>
+
+@if (isPopupVisible)
+{
+    <div class="modal fade show d-block" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">新增包裝事件明細</h5>
+                    <button type="button" class="btn-close" @onclick="() => isPopupVisible = false"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">包裝編號</label>
+                        <input type="text" class="form-control" @bind="editModel.PackagingUid" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">包裝點位</label>
+                        <input type="number" class="form-control" @bind="editModel.PackagingPoint" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">樓層</label>
+                        <input type="number" class="form-control" @bind="editModel.Floor" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">任務編號</label>
+                        <input type="text" class="form-control" @bind="editModel.TaskUid" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="() => isPopupVisible = false">取消</button>
+                    <button type="button" class="btn btn-primary" @onclick="SaveDetail">儲存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+}
+
+@code {
+    private IGrid? grid;
+    private List<DetialPackaging> details = new();
+    private bool isPopupVisible = false;
+    private DetialPackaging editModel = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+        NotificationService.DetialPackagingChanged += OnDataChanged;
+    }
+
+    private async Task LoadData()
+    {
+        details = await PackagingService.GetDetialPackagingAsync();
+    }
+
+    private async void OnDataChanged()
+    {
+        await InvokeAsync(async () =>
+        {
+            await LoadData();
+            StateHasChanged();
+        });
+    }
+
+    public void Dispose()
+    {
+        NotificationService.DetialPackagingChanged -= OnDataChanged;
+    }
+
+    private void ShowAddPopup()
+    {
+        editModel = new DetialPackaging
+        {
+            OccurrenceTime = DateTime.Now,
+            Floor = 1,
+            PackagingPoint = 0,
+            PackagingUid = "",
+            TaskUid = ""
+        };
+        isPopupVisible = true;
+    }
+
+    private async Task SaveDetail()
+    {
+        editModel.OccurrenceTime = DateTime.Now;
+        var success = await PackagingService.InsertDetialPackagingAsync(editModel);
+
+        if (success)
+        {
+            isPopupVisible = false;
+            // 不需要手動呼叫 LoadData，通知機制會自動觸發
+        }
+    }
+
+    private async Task DeleteDetail(int uid)
+    {
+        if (await JSRuntime.InvokeAsync<bool>("confirm", $"確定要刪除明細 {uid} 嗎?"))
+        {
+            await PackagingService.DeleteDetialPackagingAsync(uid);
+            // 不需要手動呼叫 LoadData，通知機制會自動觸發
+        }
+    }
+}

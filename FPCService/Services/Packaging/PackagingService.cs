@@ -6,10 +6,14 @@ namespace FPCService.Services.Packaging
     public class PackagingService
     {
         private readonly IDbContextFactory<DSDBContext> _dbContextFactory;
+        private readonly DataChangeNotificationService _notificationService;
 
-        public PackagingService(IDbContextFactory<DSDBContext> dbContextFactory)
+        public PackagingService(
+            IDbContextFactory<DSDBContext> dbContextFactory,
+            DataChangeNotificationService notificationService)
         {
             _dbContextFactory = dbContextFactory;
+            _notificationService = notificationService;
         }
 
         #region MainPackaging CRUD
@@ -40,7 +44,9 @@ namespace FPCService.Services.Packaging
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
             db.MainPackaging.Add(entity);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyMainPackagingChanged();
+            return result;
         }
 
         /// <summary>
@@ -50,7 +56,9 @@ namespace FPCService.Services.Packaging
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
             db.MainPackaging.Update(entity);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyMainPackagingChanged();
+            return result;
         }
 
         /// <summary>
@@ -63,7 +71,9 @@ namespace FPCService.Services.Packaging
             if (item == null) return false;
 
             db.MainPackaging.Remove(item);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyMainPackagingChanged();
+            return result;
         }
 
         #endregion
@@ -96,7 +106,9 @@ namespace FPCService.Services.Packaging
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
             db.DetialPackaging.Add(entity);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyDetialPackagingChanged();
+            return result;
         }
 
         /// <summary>
@@ -109,7 +121,9 @@ namespace FPCService.Services.Packaging
             if (item == null) return false;
 
             db.DetialPackaging.Remove(item);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyDetialPackagingChanged();
+            return result;
         }
 
         #endregion
@@ -132,7 +146,9 @@ namespace FPCService.Services.Packaging
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
             db.QueuePackaging.Add(entity);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyQueuePackagingChanged();
+            return result;
         }
 
         /// <summary>
@@ -142,7 +158,9 @@ namespace FPCService.Services.Packaging
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
             db.QueuePackaging.Update(entity);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyQueuePackagingChanged();
+            return result;
         }
 
         /// <summary>
@@ -155,7 +173,9 @@ namespace FPCService.Services.Packaging
             if (item == null) return false;
 
             db.QueuePackaging.Remove(item);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyQueuePackagingChanged();
+            return result;
         }
 
         #endregion
@@ -178,7 +198,9 @@ namespace FPCService.Services.Packaging
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
             db.LogPackaging.Add(entity);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyLogPackagingChanged();
+            return result;
         }
 
         #endregion

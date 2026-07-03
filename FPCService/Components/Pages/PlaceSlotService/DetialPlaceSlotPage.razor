@@ -1,0 +1,152 @@
+@page "/placeslot/detail"
+@rendermode InteractiveServer
+@using FPCService.Data
+@using FPCService.Services.Place
+@using FPCService.Services
+@inject PlaceSlotService PlaceSlotService
+@inject DataChangeNotificationService NotificationService
+@inject IJSRuntime JSRuntime
+@implements IDisposable
+
+<h3>場域插槽事件明細</h3>
+
+<div class="mb-3">
+    <button class="btn btn-primary" @onclick="ShowAddPopup">新增明細</button>
+</div>
+
+<DxGrid Data="@details"
+        @ref="grid"
+        KeyFieldName="UID"
+        PageSize="20"
+        ShowFilterRow="true"
+        ShowPager="true">
+    <Columns>
+        <DxGridDataColumn FieldName="UID" Caption="UID" Width="100px" />
+        <DxGridDataColumn FieldName="PlaceSlotUid" Caption="插槽編號" Width="120px" />
+        <DxGridDataColumn FieldName="PlaceUid" Caption="場域編號" Width="120px" />
+        <DxGridDataColumn FieldName="PlaceSlotPoint" Caption="插槽點位" Width="100px" />
+        <DxGridDataColumn FieldName="PlaceSlotStatus" Caption="插槽狀態" Width="100px" />
+        <DxGridDataColumn FieldName="Floor" Caption="樓層" Width="80px" />
+        <DxGridDataColumn FieldName="TaskUid" Caption="任務編號" Width="120px" />
+        <DxGridDataColumn FieldName="OccurrenceTime" Caption="發生時間" Width="150px" DisplayFormat="yyyy-MM-dd HH:mm:ss" />
+        <DxGridCommandColumn Width="100px">
+            <HeaderTemplate>操作</HeaderTemplate>
+            <CellDisplayTemplate>
+                <button class="btn btn-sm btn-danger" @onclick="@(() => DeleteDetail((context.DataItem as DetialPlaceSlot)!.UID))">刪除</button>
+            </CellDisplayTemplate>
+        </DxGridCommandColumn>
+    </Columns>
+</DxGrid>
+
+@if (isPopupVisible)
+{
+    <div class="modal fade show d-block" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">新增場域插槽事件明細</h5>
+                    <button type="button" class="btn-close" @onclick="() => isPopupVisible = false"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">插槽編號</label>
+                        <input type="text" class="form-control" @bind="editModel.PlaceSlotUid" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">場域編號</label>
+                        <input type="text" class="form-control" @bind="editModel.PlaceUid" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">插槽點位</label>
+                        <input type="number" class="form-control" @bind="editModel.PlaceSlotPoint" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">插槽狀態</label>
+                        <input type="text" class="form-control" @bind="editModel.PlaceSlotStatus" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">樓層</label>
+                        <input type="number" class="form-control" @bind="editModel.Floor" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">任務編號</label>
+                        <input type="text" class="form-control" @bind="editModel.TaskUid" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="() => isPopupVisible = false">取消</button>
+                    <button type="button" class="btn btn-primary" @onclick="SaveDetail">儲存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+}
+
+@code {
+    private IGrid? grid;
+    private List<DetialPlaceSlot> details = new();
+    private bool isPopupVisible = false;
+    private DetialPlaceSlot editModel = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+        NotificationService.DetialPlaceSlotChanged += OnDataChanged;
+    }
+
+    private async Task LoadData()
+    {
+        details = await PlaceSlotService.GetDetialPlaceSlotAsync();
+    }
+
+    private async void OnDataChanged()
+    {
+        await InvokeAsync(async () =>
+        {
+            await LoadData();
+            StateHasChanged();
+        });
+    }
+
+    public void Dispose()
+    {
+        NotificationService.DetialPlaceSlotChanged -= OnDataChanged;
+    }
+
+    private void ShowAddPopup()
+    {
+        editModel = new DetialPlaceSlot
+        {
+            OccurrenceTime = DateTime.Now,
+            Floor = 1,
+            PlaceSlotPoint = 0,
+            PlaceSlotUid = "",
+            PlaceUid = "",
+            PlaceSlotStatus = "",
+            TaskUid = ""
+        };
+        isPopupVisible = true;
+    }
+
+    private async Task SaveDetail()
+    {
+        editModel.OccurrenceTime = DateTime.Now;
+        var success = await PlaceSlotService.InsertDetialPlaceSlotAsync(editModel);
+
+        if (success)
+        {
+            isPopupVisible = false;
+            // 不需要手動呼叫 LoadData，通知機制會自動觸發
+        }
+    }
+
+    private async Task DeleteDetail(int uid)
+    {
+        if (await JSRuntime.InvokeAsync<bool>("confirm", $"確定要刪除明細 {uid} 嗎?"))
+        {
+            await PlaceSlotService.DeleteDetialPlaceSlotAsync(uid);
+            // 不需要手動呼叫 LoadData，通知機制會自動觸發
+        }
+    }
+}

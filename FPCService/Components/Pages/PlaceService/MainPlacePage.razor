@@ -1,0 +1,182 @@
+@page "/place/main"
+@rendermode InteractiveServer
+@using FPCService.Data
+@using FPCService.Services.Place
+@using FPCService.Services
+@inject PlaceService PlaceService
+@inject DataChangeNotificationService NotificationService
+@inject IJSRuntime JSRuntime
+@implements IDisposable
+
+<h3>場域主檔管理</h3>
+
+<div class="mb-3">
+    <button class="btn btn-primary" @onclick="ShowAddPopup">新增場域</button>
+</div>
+
+<DxGrid Data="@places"
+        @ref="grid"
+        KeyFieldName="PlaceUid"
+        PageSize="20"
+        ShowFilterRow="true"
+        ShowPager="true">
+    <Columns>
+        <DxGridDataColumn FieldName="PlaceUid" Caption="場域編號" Width="120px" />
+        <DxGridDataColumn FieldName="PlaceName" Caption="場域名稱" Width="150px" />
+        <DxGridDataColumn FieldName="PlaceId" Caption="場域ID" Width="100px" />
+        <DxGridDataColumn FieldName="Floor" Caption="樓層" Width="80px" />
+        <DxGridDataColumn FieldName="TaskUid" Caption="任務編號" Width="120px" />
+        <DxGridDataColumn FieldName="PlaceCompletedCount" Caption="完成數量" Width="100px" />
+        <DxGridDataColumn FieldName="ProcessTime" Caption="處理時間" Width="150px" DisplayFormat="yyyy-MM-dd HH:mm:ss" />
+        <DxGridCommandColumn Width="150px">
+            <HeaderTemplate>操作</HeaderTemplate>
+            <CellDisplayTemplate>
+                <button class="btn btn-sm btn-info" @onclick="@(() => ShowEditPopup((context.DataItem as MainPlace)!))">編輯</button>
+                <button class="btn btn-sm btn-danger" @onclick="@(() => DeletePlace((context.DataItem as MainPlace)!.PlaceUid))">刪除</button>
+            </CellDisplayTemplate>
+        </DxGridCommandColumn>
+    </Columns>
+</DxGrid>
+
+@if (isPopupVisible)
+{
+    <div class="modal fade show d-block" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@popupTitle</h5>
+                    <button type="button" class="btn-close" @onclick="() => isPopupVisible = false"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">場域編號</label>
+                        <input type="text" class="form-control" @bind="editModel.PlaceUid" disabled="@isEditMode" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">場域名稱</label>
+                        <input type="text" class="form-control" @bind="editModel.PlaceName" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">場域ID</label>
+                        <input type="number" class="form-control" @bind="editModel.PlaceId" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">樓層</label>
+                        <input type="number" class="form-control" @bind="editModel.Floor" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">任務編號</label>
+                        <input type="text" class="form-control" @bind="editModel.TaskUid" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">完成數量</label>
+                        <input type="number" class="form-control" @bind="editModel.PlaceCompletedCount" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="() => isPopupVisible = false">取消</button>
+                    <button type="button" class="btn btn-primary" @onclick="SavePlace">儲存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+}
+
+@code {
+    private IGrid? grid;
+    private List<MainPlace> places = new();
+    private bool isPopupVisible = false;
+    private bool isEditMode = false;
+    private string popupTitle = "";
+    private MainPlace editModel = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+        NotificationService.MainPlaceChanged += OnDataChanged;
+    }
+
+    private async Task LoadData()
+    {
+        places = await PlaceService.GetMainPlaceAsync();
+    }
+
+    private async void OnDataChanged()
+    {
+        await InvokeAsync(async () =>
+        {
+            await LoadData();
+            StateHasChanged();
+        });
+    }
+
+    public void Dispose()
+    {
+        NotificationService.MainPlaceChanged -= OnDataChanged;
+    }
+
+    private void ShowAddPopup()
+    {
+        isEditMode = false;
+        popupTitle = "新增場域";
+        editModel = new MainPlace
+        {
+            ProcessTime = DateTime.Now,
+            Floor = 1,
+            PlaceId = 0,
+            PlaceCompletedCount = 0,
+            PlaceUid = "",
+            PlaceName = "",
+            TaskUid = ""
+        };
+        isPopupVisible = true;
+    }
+
+    private void ShowEditPopup(MainPlace place)
+    {
+        isEditMode = true;
+        popupTitle = "編輯場域";
+        editModel = new MainPlace
+        {
+            PlaceUid = place.PlaceUid,
+            PlaceName = place.PlaceName,
+            PlaceId = place.PlaceId,
+            Floor = place.Floor,
+            TaskUid = place.TaskUid,
+            PlaceCompletedCount = place.PlaceCompletedCount,
+            ProcessTime = place.ProcessTime
+        };
+        isPopupVisible = true;
+    }
+
+    private async Task SavePlace()
+    {
+        editModel.ProcessTime = DateTime.Now;
+
+        bool success;
+        if (isEditMode)
+        {
+            success = await PlaceService.UpdateMainPlaceAsync(editModel);
+        }
+        else
+        {
+            success = await PlaceService.InsertMainPlaceAsync(editModel);
+        }
+
+        if (success)
+        {
+            isPopupVisible = false;
+            // 不需要手動呼叫 LoadData，通知機制會自動觸發
+        }
+    }
+
+    private async Task DeletePlace(string uid)
+    {
+        if (await JSRuntime.InvokeAsync<bool>("confirm", $"確定要刪除場域 {uid} 嗎?"))
+        {
+            await PlaceService.DeleteMainPlaceAsync(uid);
+            // 不需要手動呼叫 LoadData，通知機制會自動觸發
+        }
+    }
+}

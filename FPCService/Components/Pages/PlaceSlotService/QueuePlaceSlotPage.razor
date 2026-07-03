@@ -1,0 +1,175 @@
+@page "/placeslot/queue"
+@rendermode InteractiveServer
+@using FPCService.Data
+@using FPCService.Services.Place
+@using FPCService.Services
+@inject PlaceSlotService PlaceSlotService
+@inject DataChangeNotificationService NotificationService
+@inject IJSRuntime JSRuntime
+@implements IDisposable
+
+<h3>場域插槽佇列管理</h3>
+
+<div class="mb-3">
+    <button class="btn btn-primary" @onclick="ShowAddPopup">新增佇列任務</button>
+</div>
+
+<DxGrid Data="@queues"
+        @ref="grid"
+        KeyFieldName="UID"
+        PageSize="20"
+        ShowFilterRow="true"
+        ShowPager="true">
+    <Columns>
+        <DxGridDataColumn FieldName="UID" Caption="UID" Width="100px" />
+        <DxGridDataColumn FieldName="QueueStatus" Caption="佇列狀態" Width="100px" />
+        <DxGridDataColumn FieldName="PlaceSlotUid" Caption="插槽編號" Width="120px" />
+        <DxGridDataColumn FieldName="Floor" Caption="樓層" Width="80px" />
+        <DxGridDataColumn FieldName="TaskUid" Caption="任務編號" Width="120px" />
+        <DxGridDataColumn FieldName="ProcessTime" Caption="處理時間" Width="150px" DisplayFormat="yyyy-MM-dd HH:mm:ss" />
+        <DxGridDataColumn FieldName="CreateTime" Caption="建立時間" Width="150px" DisplayFormat="yyyy-MM-dd HH:mm:ss" />
+        <DxGridDataColumn FieldName="CompleteTime" Caption="完成時間" Width="150px" DisplayFormat="yyyy-MM-dd HH:mm:ss" />
+        <DxGridCommandColumn Width="150px">
+            <HeaderTemplate>操作</HeaderTemplate>
+            <CellDisplayTemplate>
+                <button class="btn btn-sm btn-info" @onclick="@(() => ShowEditPopup((context.DataItem as QueuePlaceSlot)!))">編輯</button>
+                <button class="btn btn-sm btn-danger" @onclick="@(() => DeleteQueue((context.DataItem as QueuePlaceSlot)!.UID))">刪除</button>
+            </CellDisplayTemplate>
+        </DxGridCommandColumn>
+    </Columns>
+</DxGrid>
+
+@if (isPopupVisible)
+{
+    <div class="modal fade show d-block" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@popupTitle</h5>
+                    <button type="button" class="btn-close" @onclick="() => isPopupVisible = false"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">佇列狀態</label>
+                        <input type="number" class="form-control" @bind="editModel.QueueStatus" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">插槽編號</label>
+                        <input type="text" class="form-control" @bind="editModel.PlaceSlotUid" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">樓層</label>
+                        <input type="number" class="form-control" @bind="editModel.Floor" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">任務編號</label>
+                        <input type="text" class="form-control" @bind="editModel.TaskUid" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="() => isPopupVisible = false">取消</button>
+                    <button type="button" class="btn btn-primary" @onclick="SaveQueue">儲存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+}
+
+@code {
+    private IGrid? grid;
+    private List<QueuePlaceSlot> queues = new();
+    private bool isPopupVisible = false;
+    private bool isEditMode = false;
+    private string popupTitle = "";
+    private QueuePlaceSlot editModel = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+        NotificationService.QueuePlaceSlotChanged += OnDataChanged;
+    }
+
+    private async Task LoadData()
+    {
+        queues = await PlaceSlotService.GetQueuePlaceSlotAsync();
+    }
+
+    private async void OnDataChanged()
+    {
+        await InvokeAsync(async () =>
+        {
+            await LoadData();
+            StateHasChanged();
+        });
+    }
+
+    public void Dispose()
+    {
+        NotificationService.QueuePlaceSlotChanged -= OnDataChanged;
+    }
+
+    private void ShowAddPopup()
+    {
+        isEditMode = false;
+        popupTitle = "新增佇列任務";
+        editModel = new QueuePlaceSlot
+        {
+            ProcessTime = DateTime.Now,
+            CreateTime = DateTime.Now,
+            Floor = 1,
+            QueueStatus = 0,
+            PlaceSlotUid = "",
+            TaskUid = ""
+        };
+        isPopupVisible = true;
+    }
+
+    private void ShowEditPopup(QueuePlaceSlot queue)
+    {
+        isEditMode = true;
+        popupTitle = "編輯佇列任務";
+        editModel = new QueuePlaceSlot
+        {
+            UID = queue.UID,
+            QueueStatus = queue.QueueStatus,
+            PlaceSlotUid = queue.PlaceSlotUid,
+            Floor = queue.Floor,
+            TaskUid = queue.TaskUid,
+            ProcessTime = queue.ProcessTime,
+            CreateTime = queue.CreateTime,
+            CompleteTime = queue.CompleteTime
+        };
+        isPopupVisible = true;
+    }
+
+    private async Task SaveQueue()
+    {
+        editModel.ProcessTime = DateTime.Now;
+
+        bool success;
+        if (isEditMode)
+        {
+            success = await PlaceSlotService.UpdateQueuePlaceSlotAsync(editModel);
+        }
+        else
+        {
+            success = await PlaceSlotService.InsertQueuePlaceSlotAsync(editModel);
+        }
+
+        if (success)
+        {
+            isPopupVisible = false;
+            // 不需要手動呼叫 LoadData，通知機制會自動觸發
+        }
+    }
+
+    private async Task DeleteQueue(int uid)
+    {
+        if (await JSRuntime.InvokeAsync<bool>("confirm", $"確定要刪除佇列任務 {uid} 嗎?"))
+        {
+            await PlaceSlotService.DeleteQueuePlaceSlotAsync(uid);
+            // 不需要手動呼叫 LoadData，通知機制會自動觸發
+        }
+    }
+}

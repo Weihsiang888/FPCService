@@ -1,0 +1,124 @@
+@page "/packaging/log"
+@rendermode InteractiveServer
+@using FPCService.Data
+@using FPCService.Services.Packaging
+@using FPCService.Services
+@inject PackagingService PackagingService
+@inject DataChangeNotificationService NotificationService
+@implements IDisposable
+
+<h3>包裝紀錄</h3>
+
+<div class="mb-3">
+    <button class="btn btn-primary" @onclick="ShowAddPopup">新增紀錄</button>
+</div>
+
+<DxGrid Data="@logs"
+        @ref="grid"
+        KeyFieldName="UID"
+        PageSize="20"
+        ShowFilterRow="true"
+        ShowPager="true">
+    <Columns>
+        <DxGridDataColumn FieldName="UID" Caption="UID" Width="100px" />
+        <DxGridDataColumn FieldName="PackagingUid" Caption="包裝編號" Width="150px" />
+        <DxGridDataColumn FieldName="Floor" Caption="樓層" Width="100px" />
+        <DxGridDataColumn FieldName="TaskUid" Caption="任務編號" Width="150px" />
+        <DxGridDataColumn FieldName="Message" Caption="訊息" Width="300px" />
+        <DxGridDataColumn FieldName="ProcessTime" Caption="處理時間" Width="150px" DisplayFormat="yyyy-MM-dd HH:mm:ss" />
+    </Columns>
+</DxGrid>
+
+@if (isPopupVisible)
+{
+    <div class="modal fade show d-block" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">新增包裝紀錄</h5>
+                    <button type="button" class="btn-close" @onclick="() => isPopupVisible = false"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">包裝編號</label>
+                        <input type="text" class="form-control" @bind="editModel.PackagingUid" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">樓層</label>
+                        <input type="number" class="form-control" @bind="editModel.Floor" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">任務編號</label>
+                        <input type="text" class="form-control" @bind="editModel.TaskUid" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">訊息</label>
+                        <textarea class="form-control" rows="3" @bind="editModel.Message"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="() => isPopupVisible = false">取消</button>
+                    <button type="button" class="btn btn-primary" @onclick="SaveLog">儲存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+}
+
+@code {
+    private IGrid? grid;
+    private List<LogPackaging> logs = new();
+    private bool isPopupVisible = false;
+    private LogPackaging editModel = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+        NotificationService.LogPackagingChanged += OnDataChanged;
+    }
+
+    private async Task LoadData()
+    {
+        logs = await PackagingService.GetLogPackagingAsync();
+    }
+
+    private async void OnDataChanged()
+    {
+        await InvokeAsync(async () =>
+        {
+            await LoadData();
+            StateHasChanged();
+        });
+    }
+
+    public void Dispose()
+    {
+        NotificationService.LogPackagingChanged -= OnDataChanged;
+    }
+
+    private void ShowAddPopup()
+    {
+        editModel = new LogPackaging
+        {
+            ProcessTime = DateTime.Now,
+            Floor = 1,
+            PackagingUid = "",
+            TaskUid = "",
+            Message = ""
+        };
+        isPopupVisible = true;
+    }
+
+    private async Task SaveLog()
+    {
+        editModel.ProcessTime = DateTime.Now;
+        var success = await PackagingService.InsertLogPackagingAsync(editModel);
+
+        if (success)
+        {
+            isPopupVisible = false;
+            // 不需要手動呼叫 LoadData，通知機制會自動觸發
+        }
+    }
+}
