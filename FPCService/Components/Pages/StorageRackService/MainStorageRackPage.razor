@@ -1,0 +1,69 @@
+@page "/storagerack/main"
+@rendermode InteractiveServer
+@using FPCService.Data
+@using FPCService.Services.StorageRack
+@using FPCService.Services
+@inject StorageRackService StorageRackService
+@inject DataChangeNotificationService NotificationService
+@implements IDisposable
+
+<h3>儲存架主檔管理</h3>
+
+<DxGrid Data="@storageRacks"
+        EditMode="GridEditMode.EditRow"
+        EditModelSaving="OnEditModelSaving">
+    <Columns>
+        <DxGridCommandColumn Width="160px" />
+        <DxGridDataColumn FieldName="StorageRackUid" Caption="儲存架編號" />
+        <DxGridDataColumn FieldName="StorageRackName" Caption="儲存架名稱" />
+        <DxGridDataColumn FieldName="StorageRackPoint" Caption="儲存架點位" />
+        <DxGridDataColumn FieldName="YarnSpoolType" Caption="紗筒類型" />
+        <DxGridDataColumn FieldName="Floor" Caption="樓層" />
+        <DxGridDataColumn FieldName="TaskUid" Caption="任務編號" />
+        <DxGridDataColumn FieldName="StorageCompletedCount" Caption="已完成數量" />
+        <DxGridDataColumn FieldName="ProcessTime" Caption="處理時間" />
+    </Columns>
+</DxGrid>
+
+@code {
+    private List<MainStorageRack> storageRacks = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        NotificationService.MainStorageRackChanged += OnDataChanged;
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        storageRacks = await StorageRackService.GetMainStorageRackAsync();
+    }
+
+    private void OnDataChanged()
+    {
+        InvokeAsync(async () =>
+        {
+            await LoadData();
+            StateHasChanged();
+        });
+    }
+
+    private async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        var item = (MainStorageRack)e.EditModel;
+        if (e.IsNew)
+        {
+            await StorageRackService.InsertMainStorageRackAsync(item);
+        }
+        else
+        {
+            await StorageRackService.UpdateMainStorageRackAsync(item);
+        }
+        await LoadData();
+    }
+
+    public void Dispose()
+    {
+        NotificationService.MainStorageRackChanged -= OnDataChanged;
+    }
+}

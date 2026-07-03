@@ -1,0 +1,68 @@
+@page "/rackslot/main"
+@rendermode InteractiveServer
+@using FPCService.Data
+@using FPCService.Services.StorageRack
+@using FPCService.Services
+@inject RackSlotService RackSlotService
+@inject DataChangeNotificationService NotificationService
+@implements IDisposable
+
+<h3>儲存架插槽主檔管理</h3>
+
+<DxGrid Data="@rackSlots"
+        EditMode="GridEditMode.EditRow"
+        EditModelSaving="OnEditModelSaving">
+    <Columns>
+        <DxGridCommandColumn Width="160px" />
+        <DxGridDataColumn FieldName="RackSlotUid" Caption="插槽編號" />
+        <DxGridDataColumn FieldName="StorageRackUid" Caption="儲存架編號" />
+        <DxGridDataColumn FieldName="RackSlotPoint" Caption="插槽點位" />
+        <DxGridDataColumn FieldName="RackSlotStatus" Caption="插槽狀態" />
+        <DxGridDataColumn FieldName="YarnSpoolType" Caption="紗筒類型" />
+        <DxGridDataColumn FieldName="Floor" Caption="樓層" />
+        <DxGridDataColumn FieldName="TaskUid" Caption="任務編號" />
+    </Columns>
+</DxGrid>
+
+@code {
+    private List<MainRackSlot> rackSlots = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        NotificationService.MainRackSlotChanged += OnDataChanged;
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        rackSlots = await RackSlotService.GetMainRackSlotAsync();
+    }
+
+    private void OnDataChanged()
+    {
+        InvokeAsync(async () =>
+        {
+            await LoadData();
+            StateHasChanged();
+        });
+    }
+
+    private async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        var item = (MainRackSlot)e.EditModel;
+        if (e.IsNew)
+        {
+            await RackSlotService.InsertMainRackSlotAsync(item);
+        }
+        else
+        {
+            await RackSlotService.UpdateMainRackSlotAsync(item);
+        }
+        await LoadData();
+    }
+
+    public void Dispose()
+    {
+        NotificationService.MainRackSlotChanged -= OnDataChanged;
+    }
+}

@@ -6,10 +6,14 @@ namespace FPCService.Services.StorageRack
     public class StorageRackService
     {
         private readonly IDbContextFactory<DSDBContext> _dbContextFactory;
+        private readonly DataChangeNotificationService _notificationService;
 
-        public StorageRackService(IDbContextFactory<DSDBContext> dbContextFactory)
+        public StorageRackService(
+            IDbContextFactory<DSDBContext> dbContextFactory,
+            DataChangeNotificationService notificationService)
         {
             _dbContextFactory = dbContextFactory;
+            _notificationService = notificationService;
         }
 
         #region MainStorageRack CRUD
@@ -40,7 +44,9 @@ namespace FPCService.Services.StorageRack
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
             db.MainStorageRack.Add(entity);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyMainStorageRackChanged();
+            return result;
         }
 
         /// <summary>
@@ -50,7 +56,9 @@ namespace FPCService.Services.StorageRack
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
             db.MainStorageRack.Update(entity);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyMainStorageRackChanged();
+            return result;
         }
 
         /// <summary>
@@ -63,7 +71,9 @@ namespace FPCService.Services.StorageRack
             if (item == null) return false;
 
             db.MainStorageRack.Remove(item);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyMainStorageRackChanged();
+            return result;
         }
 
         #endregion

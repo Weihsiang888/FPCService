@@ -1,0 +1,63 @@
+@page "/rackslot/log"
+@rendermode InteractiveServer
+@using FPCService.Data
+@using FPCService.Services.StorageRack
+@using FPCService.Services
+@inject RackSlotService RackSlotService
+@inject DataChangeNotificationService NotificationService
+@implements IDisposable
+
+<h3>儲存架插槽紀錄</h3>
+
+<DxGrid Data="@logs"
+        EditMode="GridEditMode.EditRow"
+        EditModelSaving="OnEditModelSaving">
+    <Columns>
+        <DxGridCommandColumn Width="160px" />
+        <DxGridDataColumn FieldName="UID" Caption="序號" />
+        <DxGridDataColumn FieldName="RackSlotUid" Caption="插槽編號" />
+        <DxGridDataColumn FieldName="Floor" Caption="樓層" />
+        <DxGridDataColumn FieldName="TaskUid" Caption="任務編號" />
+        <DxGridDataColumn FieldName="Message" Caption="訊息" />
+        <DxGridDataColumn FieldName="ProcessTime" Caption="處理時間" />
+    </Columns>
+</DxGrid>
+
+@code {
+    private List<LogRackSlot> logs = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        NotificationService.LogRackSlotChanged += OnDataChanged;
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        logs = await RackSlotService.GetLogRackSlotAsync();
+    }
+
+    private void OnDataChanged()
+    {
+        InvokeAsync(async () =>
+        {
+            await LoadData();
+            StateHasChanged();
+        });
+    }
+
+    private async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        var item = (LogRackSlot)e.EditModel;
+        if (e.IsNew)
+        {
+            await RackSlotService.InsertLogRackSlotAsync(item);
+        }
+        await LoadData();
+    }
+
+    public void Dispose()
+    {
+        NotificationService.LogRackSlotChanged -= OnDataChanged;
+    }
+}

@@ -31,6 +31,15 @@ namespace FPCService.Services
         public event Action? QueuePlaceSlotChanged;
         public event Action? LogPlaceSlotChanged;
 
+        // StorageRack 相關事件
+        public event Action? MainStorageRackChanged;
+
+        // RackSlot 相關事件
+        public event Action? MainRackSlotChanged;
+        public event Action? DetialRackSlotChanged;
+        public event Action? QueueRackSlotChanged;
+        public event Action? LogRackSlotChanged;
+
         // 通知方法 - MobileRobot
         public void NotifyMainMobileRobotChanged() => MainMobileRobotChanged?.Invoke();
         public void NotifyDetialMobileRobotChanged() => DetialMobileRobotChanged?.Invoke();
@@ -52,5 +61,14 @@ namespace FPCService.Services
         public void NotifyDetialPlaceSlotChanged() => DetialPlaceSlotChanged?.Invoke();
         public void NotifyQueuePlaceSlotChanged() => QueuePlaceSlotChanged?.Invoke();
         public void NotifyLogPlaceSlotChanged() => LogPlaceSlotChanged?.Invoke();
+
+        // 通知方法 - StorageRack
+        public void NotifyMainStorageRackChanged() => MainStorageRackChanged?.Invoke();
+
+        // 通知方法 - RackSlot
+        public void NotifyMainRackSlotChanged() => MainRackSlotChanged?.Invoke();
+        public void NotifyDetialRackSlotChanged() => DetialRackSlotChanged?.Invoke();
+        public void NotifyQueueRackSlotChanged() => QueueRackSlotChanged?.Invoke();
+        public void NotifyLogRackSlotChanged() => LogRackSlotChanged?.Invoke();
     }
 }

@@ -6,10 +6,14 @@ namespace FPCService.Services.StorageRack
     public class RackSlotService
     {
         private readonly IDbContextFactory<DSDBContext> _dbContextFactory;
+        private readonly DataChangeNotificationService _notificationService;
 
-        public RackSlotService(IDbContextFactory<DSDBContext> dbContextFactory)
+        public RackSlotService(
+            IDbContextFactory<DSDBContext> dbContextFactory,
+            DataChangeNotificationService notificationService)
         {
             _dbContextFactory = dbContextFactory;
+            _notificationService = notificationService;
         }
 
         #region MainRackSlot CRUD
@@ -40,7 +44,9 @@ namespace FPCService.Services.StorageRack
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
             db.MainRackSlot.Add(entity);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyMainRackSlotChanged();
+            return result;
         }
 
         /// <summary>
@@ -50,7 +56,9 @@ namespace FPCService.Services.StorageRack
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
             db.MainRackSlot.Update(entity);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyMainRackSlotChanged();
+            return result;
         }
 
         /// <summary>
@@ -63,7 +71,9 @@ namespace FPCService.Services.StorageRack
             if (item == null) return false;
 
             db.MainRackSlot.Remove(item);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyMainRackSlotChanged();
+            return result;
         }
 
         #endregion
@@ -96,7 +106,9 @@ namespace FPCService.Services.StorageRack
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
             db.DetialRackSlot.Add(entity);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyDetialRackSlotChanged();
+            return result;
         }
 
         /// <summary>
@@ -109,7 +121,9 @@ namespace FPCService.Services.StorageRack
             if (item == null) return false;
 
             db.DetialRackSlot.Remove(item);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyDetialRackSlotChanged();
+            return result;
         }
 
         #endregion
@@ -132,7 +146,9 @@ namespace FPCService.Services.StorageRack
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
             db.QueueRackSlot.Add(entity);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyQueueRackSlotChanged();
+            return result;
         }
 
         /// <summary>
@@ -142,7 +158,9 @@ namespace FPCService.Services.StorageRack
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
             db.QueueRackSlot.Update(entity);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyQueueRackSlotChanged();
+            return result;
         }
 
         /// <summary>
@@ -155,7 +173,9 @@ namespace FPCService.Services.StorageRack
             if (item == null) return false;
 
             db.QueueRackSlot.Remove(item);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyQueueRackSlotChanged();
+            return result;
         }
 
         #endregion
@@ -178,7 +198,9 @@ namespace FPCService.Services.StorageRack
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
             db.LogRackSlot.Add(entity);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyLogRackSlotChanged();
+            return result;
         }
 
         #endregion

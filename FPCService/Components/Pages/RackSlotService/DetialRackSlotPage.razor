@@ -1,0 +1,66 @@
+@page "/rackslot/detail"
+@rendermode InteractiveServer
+@using FPCService.Data
+@using FPCService.Services.StorageRack
+@using FPCService.Services
+@inject RackSlotService RackSlotService
+@inject DataChangeNotificationService NotificationService
+@implements IDisposable
+
+<h3>儲存架插槽事件明細</h3>
+
+<DxGrid Data="@details"
+        EditMode="GridEditMode.EditRow"
+        EditModelSaving="OnEditModelSaving">
+    <Columns>
+        <DxGridCommandColumn Width="160px" />
+        <DxGridDataColumn FieldName="UID" Caption="序號" />
+        <DxGridDataColumn FieldName="RackSlotUid" Caption="插槽編號" />
+        <DxGridDataColumn FieldName="StorageRackUid" Caption="儲存架編號" />
+        <DxGridDataColumn FieldName="RackSlotPoint" Caption="插槽點位" />
+        <DxGridDataColumn FieldName="RackSlotStatus" Caption="插槽狀態" />
+        <DxGridDataColumn FieldName="YarnSpoolType" Caption="紗筒類型" />
+        <DxGridDataColumn FieldName="Floor" Caption="樓層" />
+        <DxGridDataColumn FieldName="TaskUid" Caption="任務編號" />
+        <DxGridDataColumn FieldName="OccurrenceTime" Caption="發生時間" />
+    </Columns>
+</DxGrid>
+
+@code {
+    private List<DetialRackSlot> details = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        NotificationService.DetialRackSlotChanged += OnDataChanged;
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        details = await RackSlotService.GetDetialRackSlotAsync();
+    }
+
+    private void OnDataChanged()
+    {
+        InvokeAsync(async () =>
+        {
+            await LoadData();
+            StateHasChanged();
+        });
+    }
+
+    private async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        var item = (DetialRackSlot)e.EditModel;
+        if (e.IsNew)
+        {
+            await RackSlotService.InsertDetialRackSlotAsync(item);
+        }
+        await LoadData();
+    }
+
+    public void Dispose()
+    {
+        NotificationService.DetialRackSlotChanged -= OnDataChanged;
+    }
+}
