@@ -295,7 +295,7 @@ namespace FPCService.Data
                 entity.HasKey(e => e.UID);
 
                 entity.Property(e => e.UID).HasColumnName("UID");
-                entity.Property(e => e.MobileRobotUid).HasColumnName("AGV_UID").HasMaxLength(60);
+                entity.Property(e => e.MobileRobotUid).HasColumnName("MobileRobot_UID").HasMaxLength(60);
                 entity.Property(e => e.Floor).HasColumnName("Floor");
                 entity.Property(e => e.TaskUid).HasColumnName("TaskUID").HasMaxLength(60);
                 entity.Property(e => e.Message).HasColumnName("Message").HasMaxLength(200);

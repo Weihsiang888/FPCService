@@ -38,6 +38,21 @@
                 <li><a href="/packaging/queue" class="dropdown-item @(IsActive("/packaging/queue") ? "active" : "")" @onclick="CloseAllDropdowns">包裝佇列管理</a></li>
             </ul>
         </li>
+        <li class="nav-item dropdown @(isDropdownOpen_Place ? "show" : "")">
+            <button class="nav-link dropdown-toggle @(IsActiveParent("/place") ? "active" : "")" 
+                    type="button"
+                    @onclick="() => ToggleDropdown(ref isDropdownOpen_Place)"
+                    @onclick:stopPropagation="true">
+                AMR放置區管理
+            </button>
+            <ul class="dropdown-menu @(isDropdownOpen_Place ? "show" : "")" @onclick:stopPropagation="true">
+                <li><a href="/place/main" class="dropdown-item @(IsActive("/place/main") ? "active" : "")" @onclick="CloseAllDropdowns">場域管理</a></li>
+                <li><a href="/placeslot/main" class="dropdown-item @(IsActive("/placeslot/main") ? "active" : "")" @onclick="CloseAllDropdowns">插槽主檔管理</a></li>
+                <li><a href="/placeslot/detail" class="dropdown-item @(IsActive("/placeslot/detail") ? "active" : "")" @onclick="CloseAllDropdowns">插槽事件明細</a></li>
+                <li><a href="/placeslot/log" class="dropdown-item @(IsActive("/placeslot/log") ? "active" : "")" @onclick="CloseAllDropdowns">插槽紀錄</a></li>
+                <li><a href="/placeslot/queue" class="dropdown-item @(IsActive("/placeslot/queue") ? "active" : "")" @onclick="CloseAllDropdowns">插槽佇列管理</a></li>
+            </ul>
+        </li>
     </ul>
 </nav>
 
@@ -45,6 +60,7 @@
     private string? currentLocalPath;
     private bool isDropdownOpen_MobileRobot = false;
     private bool isDropdownOpen_Packaging = false;
+    private bool isDropdownOpen_Place = false;
 
     protected override void OnInitialized() {
         currentLocalPath = new Uri(NavigationManager.Uri).LocalPath;
@@ -61,6 +77,7 @@
         // 關閉所有其他下拉選單
         isDropdownOpen_MobileRobot = false;
         isDropdownOpen_Packaging = false;
+        isDropdownOpen_Place = false;
 
         // 切換當前下拉選單
         dropdownState = !dropdownState;
@@ -70,6 +87,7 @@
     private void CloseAllDropdowns() {
         isDropdownOpen_MobileRobot = false;
         isDropdownOpen_Packaging = false;
+        isDropdownOpen_Place = false;
         StateHasChanged();
     }
 
@@ -78,6 +96,10 @@
     }
 
     private bool IsActiveParent(string parentPath) {
+        if (parentPath == "/place") {
+            // 對於 Place，檢查 /place 或 /placeslot 開頭的路徑
+            return currentLocalPath?.StartsWith("/place", StringComparison.OrdinalIgnoreCase) == true;
+        }
         return currentLocalPath?.StartsWith(parentPath + "/", StringComparison.OrdinalIgnoreCase) == true;
     }
 
