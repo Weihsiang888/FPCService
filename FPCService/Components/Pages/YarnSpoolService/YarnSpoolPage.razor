@@ -1,0 +1,79 @@
+@page "/yarnspool/main"
+@rendermode InteractiveServer
+@using FPCService.Data
+@using FPCService.Services.YarnSpool
+@using FPCService.Services
+@inject YarnSpoolService YarnSpoolService
+@inject DataChangeNotificationService NotificationService
+@implements IDisposable
+
+<h3>紗管管理</h3>
+
+<DxGrid Data="@yarnSpools"
+        EditMode="GridEditMode.EditRow"
+        EditModelSaving="OnEditModelSaving">
+    <Columns>
+        <DxGridCommandColumn Width="160px" />
+        <DxGridDataColumn FieldName="UID" Caption="序號" />
+        <DxGridDataColumn FieldName="YarnSpoolUid" Caption="紗管編號" />
+        <DxGridDataColumn FieldName="YarnSpoolStatus" Caption="紗管狀態" />
+        <DxGridDataColumn FieldName="YarnSpoolType" Caption="紗管類型" />
+        <DxGridDataColumn FieldName="AgvUid" Caption="AGV 編號" />
+        <DxGridDataColumn FieldName="PlaceUid" Caption="站點編號" />
+        <DxGridDataColumn FieldName="PlaceSlotUid" Caption="站點插槽編號" />
+        <DxGridDataColumn FieldName="StorageRackUid" Caption="儲存架編號" />
+        <DxGridDataColumn FieldName="RackSlotUid" Caption="儲存架插槽編號" />
+        <DxGridDataColumn FieldName="TaskUid" Caption="任務編號" />
+        <DxGridDataColumn FieldName="Floor" Caption="樓層" />
+        <DxGridDataColumn FieldName="ProcessTime" Caption="處理時間" />
+        <DxGridDataColumn FieldName="CreateTime" Caption="建立時間" />
+        <DxGridDataColumn FieldName="CompleteTime" Caption="完成時間" />
+        <DxGridDataColumn FieldName="PlaceTime" Caption="放置時間" />
+        <DxGridDataColumn FieldName="StorageTime" Caption="儲存時間" />
+        <DxGridDataColumn FieldName="PackagingTime" Caption="包裝時間" />
+        <DxGridDataColumn FieldName="EventTime" Caption="事件時間" />
+    </Columns>
+</DxGrid>
+
+@code {
+    private List<YarnSpool> yarnSpools = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        NotificationService.YarnSpoolChanged += OnDataChanged;
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        yarnSpools = await YarnSpoolService.GetYarnSpoolAsync();
+    }
+
+    private void OnDataChanged()
+    {
+        InvokeAsync(async () =>
+        {
+            await LoadData();
+            StateHasChanged();
+        });
+    }
+
+    private async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        var item = (YarnSpool)e.EditModel;
+        if (e.IsNew)
+        {
+            await YarnSpoolService.InsertYarnSpoolAsync(item);
+        }
+        else
+        {
+            await YarnSpoolService.UpdateYarnSpoolAsync(item);
+        }
+        await LoadData();
+    }
+
+    public void Dispose()
+    {
+        NotificationService.YarnSpoolChanged -= OnDataChanged;
+    }
+}

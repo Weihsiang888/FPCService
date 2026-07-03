@@ -6,10 +6,14 @@ namespace FPCService.Services.YarnSpool
     public class YarnSpoolService
     {
         private readonly IDbContextFactory<DSDBContext> _dbContextFactory;
+        private readonly DataChangeNotificationService _notificationService;
 
-        public YarnSpoolService(IDbContextFactory<DSDBContext> dbContextFactory)
+        public YarnSpoolService(
+            IDbContextFactory<DSDBContext> dbContextFactory,
+            DataChangeNotificationService notificationService)
         {
             _dbContextFactory = dbContextFactory;
+            _notificationService = notificationService;
         }
 
         #region YarnSpool CRUD
@@ -40,7 +44,9 @@ namespace FPCService.Services.YarnSpool
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
             db.YarnSpool.Add(entity);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyYarnSpoolChanged();
+            return result;
         }
 
         /// <summary>
@@ -50,7 +56,9 @@ namespace FPCService.Services.YarnSpool
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
             db.YarnSpool.Update(entity);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyYarnSpoolChanged();
+            return result;
         }
 
         /// <summary>
@@ -63,7 +71,9 @@ namespace FPCService.Services.YarnSpool
             if (item == null) return false;
 
             db.YarnSpool.Remove(item);
-            return await db.SaveChangesAsync() > 0;
+            var result = await db.SaveChangesAsync() > 0;
+            if (result) _notificationService.NotifyYarnSpoolChanged();
+            return result;
         }
 
         #endregion
