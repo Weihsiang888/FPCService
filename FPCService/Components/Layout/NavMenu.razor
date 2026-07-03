@@ -3,97 +3,116 @@
 @implements IDisposable
 
 <nav class="horizontal-nav" @onclick="CloseAllDropdowns">
-    <ul class="nav-items">
+    <!-- 第一層導航 -->
+    <ul class="nav-items primary-nav">
         <li class="nav-item">
-            <a href="/" class="nav-link @(IsActive("/") ? "active" : "")">
+            <a href="/" class="nav-link @(IsActive("/") ? "active" : "")" @onclick="() => isSystemManagementActive = false">
                 Home
             </a>
         </li>
         <li class="nav-item">
-            <a href="/yarnspool/main" class="nav-link @(IsActive("/yarnspool/main") ? "active" : "")">
-                紗卷管理
-            </a>
-        </li>
-        <li class="nav-item dropdown @(isDropdownOpen_MobileRobot ? "show" : "")">
-            <button class="nav-link dropdown-toggle @(IsActiveParent("/mobilerobot") ? "active" : "")" 
+            <button class="nav-link @(isSystemManagementActive ? "active" : "")" 
                     type="button"
-                    @onclick="() => ToggleDropdown(ref isDropdownOpen_MobileRobot)"
+                    @onclick="ToggleSystemManagement"
                     @onclick:stopPropagation="true">
-                移動車管理
+                系統管理
             </button>
-            <ul class="dropdown-menu @(isDropdownOpen_MobileRobot ? "show" : "")" @onclick:stopPropagation="true">
-                <li><a href="/mobilerobot/main" class="dropdown-item @(IsActive("/mobilerobot/main") ? "active" : "")" @onclick="CloseAllDropdowns">主檔管理</a></li>
-                <li><a href="/mobilerobot/detail" class="dropdown-item @(IsActive("/mobilerobot/detail") ? "active" : "")" @onclick="CloseAllDropdowns">事件明細</a></li>
-                <li><a href="/mobilerobot/log" class="dropdown-item @(IsActive("/mobilerobot/log") ? "active" : "")" @onclick="CloseAllDropdowns">事件紀錄</a></li>
-                <li><a href="/mobilerobot/point" class="dropdown-item @(IsActive("/mobilerobot/point") ? "active" : "")" @onclick="CloseAllDropdowns">點位管理</a></li>
-                <li><a href="/mobilerobot/queue" class="dropdown-item @(IsActive("/mobilerobot/queue") ? "active" : "")" @onclick="CloseAllDropdowns">任務佇列管理</a></li>
-            </ul>
-        </li>
-        <li class="nav-item dropdown @(isDropdownOpen_YarnMachine ? "show" : "")">
-            <button class="nav-link dropdown-toggle @(IsActiveParent("/yarnmachine") ? "active" : "")"
-                    type="button"
-                    @onclick="() => ToggleDropdown(ref isDropdownOpen_YarnMachine)"
-                    @onclick:stopPropagation="true">
-                紗卷機管理
-            </button>
-            <ul class="dropdown-menu @(isDropdownOpen_YarnMachine ? "show" : "")" @onclick:stopPropagation="true">
-                <li><a href="/yarnmachine/main" class="dropdown-item @(IsActive("/yarnmachine/main") ? "active" : "")" @onclick="CloseAllDropdowns">紡紗機管理</a></li>
-                <li><a href="/yarnmachine/detail" class="dropdown-item @(IsActive("/yarnmachine/detail") ? "active" : "")" @onclick="CloseAllDropdowns">紡紗機事件明細</a></li>
-                <li><a href="/yarnmachineslot/main" class="dropdown-item @(IsActive("/yarnmachineslot/main") ? "active" : "")" @onclick="CloseAllDropdowns">紡紗機插槽主檔管理</a></li>
-                <li><a href="/yarnmachineslot/detail" class="dropdown-item @(IsActive("/yarnmachineslot/detail") ? "active" : "")" @onclick="CloseAllDropdowns">紡紗機插槽事件明細</a></li>
-                <li><a href="/yarnmachineslot/log" class="dropdown-item @(IsActive("/yarnmachineslot/log") ? "active" : "")" @onclick="CloseAllDropdowns">紡紗機插槽紀錄</a></li>
-                <li><a href="/yarnmachineslot/queue" class="dropdown-item @(IsActive("/yarnmachineslot/queue") ? "active" : "")" @onclick="CloseAllDropdowns">紡紗機插槽佇列管理</a></li>
-            </ul>
-        </li>
-        <li class="nav-item dropdown @(isDropdownOpen_Place ? "show" : "")">
-            <button class="nav-link dropdown-toggle @(IsActiveParent("/place") ? "active" : "")"
-                    type="button"
-                    @onclick="() => ToggleDropdown(ref isDropdownOpen_Place)"
-                    @onclick:stopPropagation="true">
-                AMR放置區管理
-            </button>
-            <ul class="dropdown-menu @(isDropdownOpen_Place ? "show" : "")" @onclick:stopPropagation="true">
-                <li><a href="/place/main" class="dropdown-item @(IsActive("/place/main") ? "active" : "")" @onclick="CloseAllDropdowns">場域管理</a></li>
-                <li><a href="/placeslot/main" class="dropdown-item @(IsActive("/placeslot/main") ? "active" : "")" @onclick="CloseAllDropdowns">插槽主檔管理</a></li>
-                <li><a href="/placeslot/detail" class="dropdown-item @(IsActive("/placeslot/detail") ? "active" : "")" @onclick="CloseAllDropdowns">插槽事件明細</a></li>
-                <li><a href="/placeslot/log" class="dropdown-item @(IsActive("/placeslot/log") ? "active" : "")" @onclick="CloseAllDropdowns">插槽紀錄</a></li>
-                <li><a href="/placeslot/queue" class="dropdown-item @(IsActive("/placeslot/queue") ? "active" : "")" @onclick="CloseAllDropdowns">插槽佇列管理</a></li>
-            </ul>
-        </li>
-        <li class="nav-item dropdown @(isDropdownOpen_StorageRack ? "show" : "")">
-            <button class="nav-link dropdown-toggle @(IsActiveParent("/storagerack") ? "active" : "")" 
-                    type="button"
-                    @onclick="() => ToggleDropdown(ref isDropdownOpen_StorageRack)"
-                    @onclick:stopPropagation="true">
-                紗卷下料區管理
-            </button>
-            <ul class="dropdown-menu @(isDropdownOpen_StorageRack ? "show" : "")" @onclick:stopPropagation="true">
-                <li><a href="/storagerack/main" class="dropdown-item @(IsActive("/storagerack/main") ? "active" : "")" @onclick="CloseAllDropdowns">儲存架管理</a></li>
-                <li><a href="/rackslot/main" class="dropdown-item @(IsActive("/rackslot/main") ? "active" : "")" @onclick="CloseAllDropdowns">儲存架插槽主檔管理</a></li>
-                <li><a href="/rackslot/detail" class="dropdown-item @(IsActive("/rackslot/detail") ? "active" : "")" @onclick="CloseAllDropdowns">儲存架插槽事件明細</a></li>
-                <li><a href="/rackslot/log" class="dropdown-item @(IsActive("/rackslot/log") ? "active" : "")" @onclick="CloseAllDropdowns">儲存架插槽紀錄</a></li>
-                <li><a href="/rackslot/queue" class="dropdown-item @(IsActive("/rackslot/queue") ? "active" : "")" @onclick="CloseAllDropdowns">儲存架插槽佇列管理</a></li>
-            </ul>
-        </li>
-        <li class="nav-item dropdown @(isDropdownOpen_Packaging ? "show" : "")">
-            <button class="nav-link dropdown-toggle @(IsActiveParent("/packaging") ? "active" : "")"
-                    type="button"
-                    @onclick="() => ToggleDropdown(ref isDropdownOpen_Packaging)"
-                    @onclick:stopPropagation="true">
-                紗卷包裝管理
-            </button>
-            <ul class="dropdown-menu @(isDropdownOpen_Packaging ? "show" : "")" @onclick:stopPropagation="true">
-                <li><a href="/packaging/main" class="dropdown-item @(IsActive("/packaging/main") ? "active" : "")" @onclick="CloseAllDropdowns">主檔管理</a></li>
-                <li><a href="/packaging/detail" class="dropdown-item @(IsActive("/packaging/detail") ? "active" : "")" @onclick="CloseAllDropdowns">事件明細</a></li>
-                <li><a href="/packaging/log" class="dropdown-item @(IsActive("/packaging/log") ? "active" : "")" @onclick="CloseAllDropdowns">包裝紀錄</a></li>
-                <li><a href="/packaging/queue" class="dropdown-item @(IsActive("/packaging/queue") ? "active" : "")" @onclick="CloseAllDropdowns">包裝佇列管理</a></li>
-            </ul>
         </li>
     </ul>
 </nav>
 
+<!-- 第二層導航（系統管理子選單） -->
+@if (isSystemManagementActive)
+{
+    <nav class="horizontal-nav secondary-nav" @onclick="CloseAllDropdowns">
+        <ul class="nav-items">
+            <li class="nav-item">
+                <a href="/yarnspool/main" class="nav-link @(IsActive("/yarnspool/main") ? "active" : "")">
+                    紗卷管理
+                </a>
+            </li>
+            <li class="nav-item dropdown @(isDropdownOpen_MobileRobot ? "show" : "")">
+                <button class="nav-link dropdown-toggle @(IsActiveParent("/mobilerobot") ? "active" : "")" 
+                        type="button"
+                        @onclick="() => ToggleDropdown(ref isDropdownOpen_MobileRobot)"
+                        @onclick:stopPropagation="true">
+                    移動車管理
+                </button>
+                <ul class="dropdown-menu @(isDropdownOpen_MobileRobot ? "show" : "")" @onclick:stopPropagation="true">
+                    <li><a href="/mobilerobot/main" class="dropdown-item @(IsActive("/mobilerobot/main") ? "active" : "")" @onclick="CloseAllDropdowns">主檔管理</a></li>
+                    <li><a href="/mobilerobot/detail" class="dropdown-item @(IsActive("/mobilerobot/detail") ? "active" : "")" @onclick="CloseAllDropdowns">事件明細</a></li>
+                    <li><a href="/mobilerobot/log" class="dropdown-item @(IsActive("/mobilerobot/log") ? "active" : "")" @onclick="CloseAllDropdowns">事件紀錄</a></li>
+                    <li><a href="/mobilerobot/point" class="dropdown-item @(IsActive("/mobilerobot/point") ? "active" : "")" @onclick="CloseAllDropdowns">點位管理</a></li>
+                    <li><a href="/mobilerobot/queue" class="dropdown-item @(IsActive("/mobilerobot/queue") ? "active" : "")" @onclick="CloseAllDropdowns">任務佇列管理</a></li>
+                </ul>
+            </li>
+            <li class="nav-item dropdown @(isDropdownOpen_YarnMachine ? "show" : "")">
+                <button class="nav-link dropdown-toggle @(IsActiveParent("/yarnmachine") ? "active" : "")"
+                        type="button"
+                        @onclick="() => ToggleDropdown(ref isDropdownOpen_YarnMachine)"
+                        @onclick:stopPropagation="true">
+                    紗卷機管理
+                </button>
+                <ul class="dropdown-menu @(isDropdownOpen_YarnMachine ? "show" : "")" @onclick:stopPropagation="true">
+                    <li><a href="/yarnmachine/main" class="dropdown-item @(IsActive("/yarnmachine/main") ? "active" : "")" @onclick="CloseAllDropdowns">紡紗機管理</a></li>
+                    <li><a href="/yarnmachine/detail" class="dropdown-item @(IsActive("/yarnmachine/detail") ? "active" : "")" @onclick="CloseAllDropdowns">紡紗機事件明細</a></li>
+                    <li><a href="/yarnmachineslot/main" class="dropdown-item @(IsActive("/yarnmachineslot/main") ? "active" : "")" @onclick="CloseAllDropdowns">紡紗機插槽主檔管理</a></li>
+                    <li><a href="/yarnmachineslot/detail" class="dropdown-item @(IsActive("/yarnmachineslot/detail") ? "active" : "")" @onclick="CloseAllDropdowns">紡紗機插槽事件明細</a></li>
+                    <li><a href="/yarnmachineslot/log" class="dropdown-item @(IsActive("/yarnmachineslot/log") ? "active" : "")" @onclick="CloseAllDropdowns">紡紗機插槽紀錄</a></li>
+                    <li><a href="/yarnmachineslot/queue" class="dropdown-item @(IsActive("/yarnmachineslot/queue") ? "active" : "")" @onclick="CloseAllDropdowns">紡紗機插槽佇列管理</a></li>
+                </ul>
+            </li>
+            <li class="nav-item dropdown @(isDropdownOpen_Place ? "show" : "")">
+                <button class="nav-link dropdown-toggle @(IsActiveParent("/place") ? "active" : "")"
+                        type="button"
+                        @onclick="() => ToggleDropdown(ref isDropdownOpen_Place)"
+                        @onclick:stopPropagation="true">
+                    AMR放置區管理
+                </button>
+                <ul class="dropdown-menu @(isDropdownOpen_Place ? "show" : "")" @onclick:stopPropagation="true">
+                    <li><a href="/place/main" class="dropdown-item @(IsActive("/place/main") ? "active" : "")" @onclick="CloseAllDropdowns">場域管理</a></li>
+                    <li><a href="/placeslot/main" class="dropdown-item @(IsActive("/placeslot/main") ? "active" : "")" @onclick="CloseAllDropdowns">插槽主檔管理</a></li>
+                    <li><a href="/placeslot/detail" class="dropdown-item @(IsActive("/placeslot/detail") ? "active" : "")" @onclick="CloseAllDropdowns">插槽事件明細</a></li>
+                    <li><a href="/placeslot/log" class="dropdown-item @(IsActive("/placeslot/log") ? "active" : "")" @onclick="CloseAllDropdowns">插槽紀錄</a></li>
+                    <li><a href="/placeslot/queue" class="dropdown-item @(IsActive("/placeslot/queue") ? "active" : "")" @onclick="CloseAllDropdowns">插槽佇列管理</a></li>
+                </ul>
+            </li>
+            <li class="nav-item dropdown @(isDropdownOpen_StorageRack ? "show" : "")">
+                <button class="nav-link dropdown-toggle @(IsActiveParent("/storagerack") ? "active" : "")" 
+                        type="button"
+                        @onclick="() => ToggleDropdown(ref isDropdownOpen_StorageRack)"
+                        @onclick:stopPropagation="true">
+                    紗卷下料區管理
+                </button>
+                <ul class="dropdown-menu @(isDropdownOpen_StorageRack ? "show" : "")" @onclick:stopPropagation="true">
+                    <li><a href="/storagerack/main" class="dropdown-item @(IsActive("/storagerack/main") ? "active" : "")" @onclick="CloseAllDropdowns">儲存架管理</a></li>
+                    <li><a href="/rackslot/main" class="dropdown-item @(IsActive("/rackslot/main") ? "active" : "")" @onclick="CloseAllDropdowns">儲存架插槽主檔管理</a></li>
+                    <li><a href="/rackslot/detail" class="dropdown-item @(IsActive("/rackslot/detail") ? "active" : "")" @onclick="CloseAllDropdowns">儲存架插槽事件明細</a></li>
+                    <li><a href="/rackslot/log" class="dropdown-item @(IsActive("/rackslot/log") ? "active" : "")" @onclick="CloseAllDropdowns">儲存架插槽紀錄</a></li>
+                    <li><a href="/rackslot/queue" class="dropdown-item @(IsActive("/rackslot/queue") ? "active" : "")" @onclick="CloseAllDropdowns">儲存架插槽佇列管理</a></li>
+                </ul>
+            </li>
+            <li class="nav-item dropdown @(isDropdownOpen_Packaging ? "show" : "")">
+                <button class="nav-link dropdown-toggle @(IsActiveParent("/packaging") ? "active" : "")"
+                        type="button"
+                        @onclick="() => ToggleDropdown(ref isDropdownOpen_Packaging)"
+                        @onclick:stopPropagation="true">
+                    紗卷包裝管理
+                </button>
+                <ul class="dropdown-menu @(isDropdownOpen_Packaging ? "show" : "")" @onclick:stopPropagation="true">
+                    <li><a href="/packaging/main" class="dropdown-item @(IsActive("/packaging/main") ? "active" : "")" @onclick="CloseAllDropdowns">主檔管理</a></li>
+                    <li><a href="/packaging/detail" class="dropdown-item @(IsActive("/packaging/detail") ? "active" : "")" @onclick="CloseAllDropdowns">事件明細</a></li>
+                    <li><a href="/packaging/log" class="dropdown-item @(IsActive("/packaging/log") ? "active" : "")" @onclick="CloseAllDropdowns">包裝紀錄</a></li>
+                    <li><a href="/packaging/queue" class="dropdown-item @(IsActive("/packaging/queue") ? "active" : "")" @onclick="CloseAllDropdowns">包裝佇列管理</a></li>
+                </ul>
+            </li>
+        </ul>
+    </nav>
+}
+
 @code {
     private string? currentLocalPath;
+    private bool isSystemManagementActive = false;
     private bool isDropdownOpen_MobileRobot = false;
     private bool isDropdownOpen_Packaging = false;
     private bool isDropdownOpen_Place = false;
@@ -102,13 +121,29 @@
 
     protected override void OnInitialized() {
         currentLocalPath = new Uri(NavigationManager.Uri).LocalPath;
+        // 檢查當前路徑是否屬於系統管理範圍
+        CheckIfSystemManagementActive();
         NavigationManager.LocationChanged += OnLocationChanged;
+    }
+
+    private void CheckIfSystemManagementActive() {
+        // 如果當前路徑不是首頁，則顯示系統管理
+        isSystemManagementActive = !string.Equals(currentLocalPath, "/", StringComparison.OrdinalIgnoreCase);
     }
 
     private void OnLocationChanged(object? sender, LocationChangedEventArgs e) {
         currentLocalPath = new Uri(NavigationManager.Uri).LocalPath;
+        CheckIfSystemManagementActive();
         CloseAllDropdowns(); // 導航時關閉所有下拉選單
         InvokeAsync(StateHasChanged);
+    }
+
+    private void ToggleSystemManagement() {
+        isSystemManagementActive = !isSystemManagementActive;
+        if (!isSystemManagementActive) {
+            CloseAllDropdowns();
+        }
+        StateHasChanged();
     }
 
     private void ToggleDropdown(ref bool dropdownState) {

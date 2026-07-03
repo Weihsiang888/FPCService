@@ -5,13 +5,16 @@
     min-height: 0;
 }
 
+.top-navbar-container {
+    background-image: linear-gradient(90deg, var(--bs-primary) 0%, var(--bs-black) 150%);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
 .top-navbar {
     display: flex;
     align-items: center;
-    background-image: linear-gradient(90deg, var(--bs-primary) 0%, var(--bs-black) 150%);
     padding: 1rem 1.5rem;
     gap: 2rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .navbar-header {
@@ -27,7 +30,8 @@
 .navbar-menu {
     flex: 1;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
 }
 
 ::deep .navbar-menu .dxbl-menu-item-content {

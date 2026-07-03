@@ -1,6 +1,19 @@
 .horizontal-nav {
     display: flex;
     align-items: center;
+    width: 100%;
+    justify-content: center;
+}
+
+/* 主導航列樣式 */
+.primary-nav {
+    margin-bottom: 0;
+}
+
+/* 次導航列樣式 */
+.secondary-nav {
+    padding: 0.5rem 0;
+    margin-top: 0.5rem;
 }
 
 .nav-items {
