@@ -68,6 +68,22 @@
                 <li><a href="/rackslot/queue" class="dropdown-item @(IsActive("/rackslot/queue") ? "active" : "")" @onclick="CloseAllDropdowns">儲存架插槽佇列管理</a></li>
             </ul>
         </li>
+        <li class="nav-item dropdown @(isDropdownOpen_YarnMachine ? "show" : "")">
+            <button class="nav-link dropdown-toggle @(IsActiveParent("/yarnmachine") ? "active" : "")" 
+                    type="button"
+                    @onclick="() => ToggleDropdown(ref isDropdownOpen_YarnMachine)"
+                    @onclick:stopPropagation="true">
+                紗卷機管理
+            </button>
+            <ul class="dropdown-menu @(isDropdownOpen_YarnMachine ? "show" : "")" @onclick:stopPropagation="true">
+                <li><a href="/yarnmachine/main" class="dropdown-item @(IsActive("/yarnmachine/main") ? "active" : "")" @onclick="CloseAllDropdowns">紡紗機管理</a></li>
+                <li><a href="/yarnmachine/detail" class="dropdown-item @(IsActive("/yarnmachine/detail") ? "active" : "")" @onclick="CloseAllDropdowns">紡紗機事件明細</a></li>
+                <li><a href="/yarnmachineslot/main" class="dropdown-item @(IsActive("/yarnmachineslot/main") ? "active" : "")" @onclick="CloseAllDropdowns">紡紗機插槽主檔管理</a></li>
+                <li><a href="/yarnmachineslot/detail" class="dropdown-item @(IsActive("/yarnmachineslot/detail") ? "active" : "")" @onclick="CloseAllDropdowns">紡紗機插槽事件明細</a></li>
+                <li><a href="/yarnmachineslot/log" class="dropdown-item @(IsActive("/yarnmachineslot/log") ? "active" : "")" @onclick="CloseAllDropdowns">紡紗機插槽紀錄</a></li>
+                <li><a href="/yarnmachineslot/queue" class="dropdown-item @(IsActive("/yarnmachineslot/queue") ? "active" : "")" @onclick="CloseAllDropdowns">紡紗機插槽佇列管理</a></li>
+            </ul>
+        </li>
     </ul>
 </nav>
 
@@ -77,6 +93,7 @@
     private bool isDropdownOpen_Packaging = false;
     private bool isDropdownOpen_Place = false;
     private bool isDropdownOpen_StorageRack = false;
+    private bool isDropdownOpen_YarnMachine = false;
 
     protected override void OnInitialized() {
         currentLocalPath = new Uri(NavigationManager.Uri).LocalPath;
@@ -95,6 +112,7 @@
         isDropdownOpen_Packaging = false;
         isDropdownOpen_Place = false;
         isDropdownOpen_StorageRack = false;
+        isDropdownOpen_YarnMachine = false;
 
         // 切換當前下拉選單
         dropdownState = !dropdownState;
@@ -106,6 +124,7 @@
         isDropdownOpen_Packaging = false;
         isDropdownOpen_Place = false;
         isDropdownOpen_StorageRack = false;
+        isDropdownOpen_YarnMachine = false;
         StateHasChanged();
     }
 
@@ -122,6 +141,10 @@
             // 對於 StorageRack,檢查 /storagerack 或 /rackslot 開頭的路徑
             return currentLocalPath?.StartsWith("/storagerack", StringComparison.OrdinalIgnoreCase) == true ||
                    currentLocalPath?.StartsWith("/rackslot", StringComparison.OrdinalIgnoreCase) == true;
+        }
+        if (parentPath == "/yarnmachine") {
+            // 對於 YarnMachine,檢查 /yarnmachine 或 /yarnmachineslot 開頭的路徑
+            return currentLocalPath?.StartsWith("/yarnmachine", StringComparison.OrdinalIgnoreCase) == true;
         }
         return currentLocalPath?.StartsWith(parentPath + "/", StringComparison.OrdinalIgnoreCase) == true;
     }
