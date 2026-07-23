@@ -78,51 +78,51 @@ namespace FPCService.Services.Packaging
 
         #endregion
 
-        #region DetialPackaging CRUD
+        #region DetailPackaging CRUD
 
         /// <summary>
         /// 取得全部包裝事件明細
         /// </summary>
-        public async Task<List<DetialPackaging>> GetDetialPackagingAsync()
+        public async Task<List<DetailPackaging>> GetDetailPackagingAsync()
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
-            return await db.DetialPackaging.AsNoTracking().ToListAsync();
+            return await db.DetailPackaging.AsNoTracking().ToListAsync();
         }
 
         /// <summary>
         /// 依 UID 取得包裝事件明細
         /// </summary>
-        public async Task<DetialPackaging?> GetDetialPackagingByUidAsync(int uid)
+        public async Task<DetailPackaging?> GetDetailPackagingByUidAsync(int uid)
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
-            return await db.DetialPackaging.AsNoTracking()
+            return await db.DetailPackaging.AsNoTracking()
                 .FirstOrDefaultAsync(x => x.UID == uid);
         }
 
         /// <summary>
         /// 新增包裝事件明細
         /// </summary>
-        public async Task<bool> InsertDetialPackagingAsync(DetialPackaging entity)
+        public async Task<bool> InsertDetailPackagingAsync(DetailPackaging entity)
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
-            db.DetialPackaging.Add(entity);
+            db.DetailPackaging.Add(entity);
             var result = await db.SaveChangesAsync() > 0;
-            if (result) _notificationService.NotifyDetialPackagingChanged();
+            if (result) _notificationService.NotifyDetailPackagingChanged();
             return result;
         }
 
         /// <summary>
         /// 刪除包裝事件明細
         /// </summary>
-        public async Task<bool> DeleteDetialPackagingAsync(int uid)
+        public async Task<bool> DeleteDetailPackagingAsync(int uid)
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
-            var item = await db.DetialPackaging.FirstOrDefaultAsync(x => x.UID == uid);
+            var item = await db.DetailPackaging.FirstOrDefaultAsync(x => x.UID == uid);
             if (item == null) return false;
 
-            db.DetialPackaging.Remove(item);
+            db.DetailPackaging.Remove(item);
             var result = await db.SaveChangesAsync() > 0;
-            if (result) _notificationService.NotifyDetialPackagingChanged();
+            if (result) _notificationService.NotifyDetailPackagingChanged();
             return result;
         }
 

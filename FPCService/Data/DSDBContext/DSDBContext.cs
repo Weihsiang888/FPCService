@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace FPCService.Data
 {
@@ -16,9 +16,9 @@ namespace FPCService.Data
         // 撚紗機相關
         // -----------------------------
         public DbSet<MainYarnMachine> MainYarnMachine { get; set; }
-        public DbSet<DetialYarnMachine> DetialYarnMachine { get; set; }
+        public DbSet<DetailYarnMachine> DetailYarnMachine { get; set; }
         public DbSet<MainYarnMachineSlot> MainYarnMachineSlot { get; set; }
-        public DbSet<DetialYarnMachineSlot> DetialYarnMachineSlot { get; set; }
+        public DbSet<DetailYarnMachineSlot> DetailYarnMachineSlot { get; set; }
         public DbSet<QueueYarnMachineSlot> QueueYarnMachineSlot { get; set; }
         public DbSet<LogYarnMachineSlot> LogYarnMachineSlot { get; set; }
 
@@ -31,7 +31,7 @@ namespace FPCService.Data
         // AGV / MobileRobot
         // -----------------------------
         public DbSet<MainMobileRobot> MainMobileRobot { get; set; }
-        public DbSet<DetialMobileRobot> DetialMobileRobot { get; set; }
+        public DbSet<DetailMobileRobot> DetailMobileRobot { get; set; }
         public DbSet<MobileRobotPoint> MobileRobotPoint { get; set; }
         public DbSet<QueueMobileRobot> QueueMobileRobot { get; set; }
         public DbSet<LogMobileRobot> LogMobileRobot { get; set; }
@@ -41,7 +41,7 @@ namespace FPCService.Data
         // -----------------------------
         public DbSet<MainPlace> MainPlace { get; set; }
         public DbSet<MainPlaceSlot> MainPlaceSlot { get; set; }
-        public DbSet<DetialPlaceSlot> DetialPlaceSlot { get; set; }
+        public DbSet<DetailPlaceSlot> DetailPlaceSlot { get; set; }
         public DbSet<QueuePlaceSlot> QueuePlaceSlot { get; set; }
         public DbSet<LogPlaceSlot> LogPlaceSlot { get; set; }
 
@@ -50,7 +50,7 @@ namespace FPCService.Data
         // -----------------------------
         public DbSet<MainStorageRack> MainStorageRack { get; set; }
         public DbSet<MainRackSlot> MainRackSlot { get; set; }
-        public DbSet<DetialRackSlot> DetialRackSlot { get; set; }
+        public DbSet<DetailRackSlot> DetailRackSlot { get; set; }
         public DbSet<QueueRackSlot> QueueRackSlot { get; set; }
         public DbSet<LogRackSlot> LogRackSlot { get; set; }
 
@@ -58,7 +58,7 @@ namespace FPCService.Data
         // 包裝區 Packaging
         // -----------------------------
         public DbSet<MainPackaging> MainPackaging { get; set; }
-        public DbSet<DetialPackaging> DetialPackaging { get; set; }
+        public DbSet<DetailPackaging> DetailPackaging { get; set; }
         public DbSet<QueuePackaging> QueuePackaging { get; set; }
         public DbSet<LogPackaging> LogPackaging { get; set; }
 
@@ -93,10 +93,10 @@ namespace FPCService.Data
             });
             #endregion
 
-            #region Detial_YarnMachine
-            modelBuilder.Entity<DetialYarnMachine>(entity =>
+            #region Detail_YarnMachine
+            modelBuilder.Entity<DetailYarnMachine>(entity =>
             {
-                entity.ToTable("Detial_YarnMachine");
+                entity.ToTable("Detail_YarnMachine");
 
                 entity.HasKey(e => e.UID);
 
@@ -130,10 +130,10 @@ namespace FPCService.Data
             });
             #endregion
 
-            #region Detial_YarnMachineSlot
-            modelBuilder.Entity<DetialYarnMachineSlot>(entity =>
+            #region Detail_YarnMachineSlot
+            modelBuilder.Entity<DetailYarnMachineSlot>(entity =>
             {
-                entity.ToTable("Detial_YarnMachineSlot");
+                entity.ToTable("Detail_YarnMachineSlot");
 
                 entity.HasKey(e => e.UID);
 
@@ -233,10 +233,10 @@ namespace FPCService.Data
             });
             #endregion
 
-            #region Detial_MobileRobot
-            modelBuilder.Entity<DetialMobileRobot>(entity =>
+            #region Detail_MobileRobot
+            modelBuilder.Entity<DetailMobileRobot>(entity =>
             {
-                entity.ToTable("Detial_MobileRobot");
+                entity.ToTable("Detail_MobileRobot");
 
                 entity.HasKey(e => e.UID);
 
@@ -336,10 +336,10 @@ namespace FPCService.Data
             });
             #endregion
 
-            #region Detial_PlaceSlot
-            modelBuilder.Entity<DetialPlaceSlot>(entity =>
+            #region Detail_PlaceSlot
+            modelBuilder.Entity<DetailPlaceSlot>(entity =>
             {
-                entity.ToTable("Detial_PlaceSlot");
+                entity.ToTable("Detail_PlaceSlot");
 
                 entity.HasKey(e => e.UID);
 
@@ -423,10 +423,10 @@ namespace FPCService.Data
             });
             #endregion
 
-            #region Detial_RackSlot
-            modelBuilder.Entity<DetialRackSlot>(entity =>
+            #region Detail_RackSlot
+            modelBuilder.Entity<DetailRackSlot>(entity =>
             {
-                entity.ToTable("Detial_RackSlot");
+                entity.ToTable("Detail_RackSlot");
 
                 entity.HasKey(e => e.UID);
 
@@ -491,10 +491,10 @@ namespace FPCService.Data
             });
             #endregion
 
-            #region Detial_Packaging
-            modelBuilder.Entity<DetialPackaging>(entity =>
+            #region Detail_Packaging
+            modelBuilder.Entity<DetailPackaging>(entity =>
             {
-                entity.ToTable("Detial_Packaging");
+                entity.ToTable("Detail_Packaging");
 
                 entity.HasKey(e => e.UID);
 

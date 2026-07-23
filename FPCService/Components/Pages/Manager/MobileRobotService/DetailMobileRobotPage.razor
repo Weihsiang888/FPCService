@@ -33,7 +33,7 @@
         <DxGridCommandColumn Width="100px">
             <HeaderTemplate>操作</HeaderTemplate>
             <CellDisplayTemplate>
-                <button class="btn btn-sm btn-danger" @onclick="@(() => DeleteDetail((context.DataItem as DetialMobileRobot)!.UID))">刪除</button>
+                <button class="btn btn-sm btn-danger" @onclick="@(() => DeleteDetail((context.DataItem as DetailMobileRobot)!.UID))">刪除</button>
             </CellDisplayTemplate>
         </DxGridCommandColumn>
     </Columns>
@@ -89,20 +89,20 @@
 }
 
 @code {
-    private List<DetialMobileRobot> details = new();
+    private List<DetailMobileRobot> details = new();
     private IGrid? grid;
     private bool isPopupVisible = false;
-    private DetialMobileRobot editModel = new();
+    private DetailMobileRobot editModel = new();
 
     protected override async Task OnInitializedAsync()
     {
         await LoadData();
-        NotificationService.DetialMobileRobotChanged += OnDataChanged;
+        NotificationService.DetailMobileRobotChanged += OnDataChanged;
     }
 
     private async Task LoadData()
     {
-        details = await MobileRobotService.GetDetialMobileRobotAsync();
+        details = await MobileRobotService.GetDetailMobileRobotAsync();
     }
 
     private async void OnDataChanged()
@@ -116,12 +116,12 @@
 
     public void Dispose()
     {
-        NotificationService.DetialMobileRobotChanged -= OnDataChanged;
+        NotificationService.DetailMobileRobotChanged -= OnDataChanged;
     }
 
     private void ShowAddPopup()
     {
-        editModel = new DetialMobileRobot
+        editModel = new DetailMobileRobot
         {
             OccurrenceTime = DateTime.Now,
             Floor = 1,
@@ -138,7 +138,7 @@
     private async Task SaveDetail()
     {
         editModel.OccurrenceTime = DateTime.Now;
-        var success = await MobileRobotService.InsertDetialMobileRobotAsync(editModel);
+        var success = await MobileRobotService.InsertDetailMobileRobotAsync(editModel);
 
         if (success)
         {
@@ -151,7 +151,7 @@
     {
         if (await JSRuntime.InvokeAsync<bool>("confirm", $"確定要刪除明細 {uid} 嗎？"))
         {
-            await MobileRobotService.DeleteDetialMobileRobotAsync(uid);
+            await MobileRobotService.DeleteDetailMobileRobotAsync(uid);
             // 不需要手動呼叫 LoadData，通知機制會自動觸發
         }
     }

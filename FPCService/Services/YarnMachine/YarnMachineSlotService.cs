@@ -78,51 +78,51 @@ namespace FPCService.Services.YarnMachine
 
         #endregion
 
-        #region DetialYarnMachineSlot CRUD
+        #region DetailYarnMachineSlot CRUD
 
         /// <summary>
         /// 取得全部紡紗機插槽事件明細
         /// </summary>
-        public async Task<List<DetialYarnMachineSlot>> GetDetialYarnMachineSlotAsync()
+        public async Task<List<DetailYarnMachineSlot>> GetDetailYarnMachineSlotAsync()
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
-            return await db.DetialYarnMachineSlot.AsNoTracking().ToListAsync();
+            return await db.DetailYarnMachineSlot.AsNoTracking().ToListAsync();
         }
 
         /// <summary>
         /// 依 UID 取得紡紗機插槽事件明細
         /// </summary>
-        public async Task<DetialYarnMachineSlot?> GetDetialYarnMachineSlotByUidAsync(int uid)
+        public async Task<DetailYarnMachineSlot?> GetDetailYarnMachineSlotByUidAsync(int uid)
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
-            return await db.DetialYarnMachineSlot.AsNoTracking()
+            return await db.DetailYarnMachineSlot.AsNoTracking()
                 .FirstOrDefaultAsync(x => x.UID == uid);
         }
 
         /// <summary>
         /// 新增紡紗機插槽事件明細
         /// </summary>
-        public async Task<bool> InsertDetialYarnMachineSlotAsync(DetialYarnMachineSlot entity)
+        public async Task<bool> InsertDetailYarnMachineSlotAsync(DetailYarnMachineSlot entity)
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
-            db.DetialYarnMachineSlot.Add(entity);
+            db.DetailYarnMachineSlot.Add(entity);
             var result = await db.SaveChangesAsync() > 0;
-            if (result) _notificationService.NotifyDetialYarnMachineSlotChanged();
+            if (result) _notificationService.NotifyDetailYarnMachineSlotChanged();
             return result;
         }
 
         /// <summary>
         /// 刪除紡紗機插槽事件明細
         /// </summary>
-        public async Task<bool> DeleteDetialYarnMachineSlotAsync(int uid)
+        public async Task<bool> DeleteDetailYarnMachineSlotAsync(int uid)
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
-            var item = await db.DetialYarnMachineSlot.FirstOrDefaultAsync(x => x.UID == uid);
+            var item = await db.DetailYarnMachineSlot.FirstOrDefaultAsync(x => x.UID == uid);
             if (item == null) return false;
 
-            db.DetialYarnMachineSlot.Remove(item);
+            db.DetailYarnMachineSlot.Remove(item);
             var result = await db.SaveChangesAsync() > 0;
-            if (result) _notificationService.NotifyDetialYarnMachineSlotChanged();
+            if (result) _notificationService.NotifyDetailYarnMachineSlotChanged();
             return result;
         }
 

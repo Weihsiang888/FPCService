@@ -1,6 +1,6 @@
-﻿namespace FPCService.Data
+namespace FPCService.Data
 {
-    public class DetialPlaceSlot
+    public class DetailPlaceSlot
     {
         public int UID { get; set; }
         public string PlaceSlotUid { get; set; }

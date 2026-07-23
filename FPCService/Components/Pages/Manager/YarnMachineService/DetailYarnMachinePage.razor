@@ -33,7 +33,7 @@
         <DxGridCommandColumn Width="100px">
             <HeaderTemplate>操作</HeaderTemplate>
             <CellDisplayTemplate>
-                <button class="btn btn-sm btn-danger" @onclick="@(() => DeleteDetail((context.DataItem as DetialYarnMachine)!.UID))">刪除</button>
+                <button class="btn btn-sm btn-danger" @onclick="@(() => DeleteDetail((context.DataItem as DetailYarnMachine)!.UID))">刪除</button>
             </CellDisplayTemplate>
         </DxGridCommandColumn>
     </Columns>
@@ -97,21 +97,21 @@
 }
 
 @code {
-    private List<DetialYarnMachine> details = new();
+    private List<DetailYarnMachine> details = new();
     private IGrid? grid;
     private bool isPopupVisible = false;
     private string popupTitle = "";
-    private DetialYarnMachine editModel = new();
+    private DetailYarnMachine editModel = new();
 
     protected override async Task OnInitializedAsync()
     {
         await LoadData();
-        NotificationService.DetialYarnMachineChanged += OnDataChanged;
+        NotificationService.DetailYarnMachineChanged += OnDataChanged;
     }
 
     private async Task LoadData()
     {
-        details = await YarnMachineService.GetDetialYarnMachineAsync();
+        details = await YarnMachineService.GetDetailYarnMachineAsync();
     }
 
     private async void OnDataChanged()
@@ -125,13 +125,13 @@
 
     public void Dispose()
     {
-        NotificationService.DetialYarnMachineChanged -= OnDataChanged;
+        NotificationService.DetailYarnMachineChanged -= OnDataChanged;
     }
 
     private void ShowAddPopup()
     {
         popupTitle = "新增事件明細";
-        editModel = new DetialYarnMachine
+        editModel = new DetailYarnMachine
         {
             YarnMachineUid = "",
             YarnMachineStatus = "",
@@ -149,7 +149,7 @@
     {
         try
         {
-            await YarnMachineService.InsertDetialYarnMachineAsync(editModel);
+            await YarnMachineService.InsertDetailYarnMachineAsync(editModel);
             isPopupVisible = false;
             await LoadData();
             StateHasChanged();
@@ -167,7 +167,7 @@
         {
             try
             {
-                await YarnMachineService.DeleteDetialYarnMachineAsync(uid);
+                await YarnMachineService.DeleteDetailYarnMachineAsync(uid);
                 await LoadData();
                 StateHasChanged();
             }

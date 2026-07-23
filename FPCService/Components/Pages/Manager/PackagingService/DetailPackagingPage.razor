@@ -1,14 +1,14 @@
-@page "/placeslot/detail"
+@page "/packaging/detail"
 @rendermode InteractiveServer
 @using FPCService.Data
-@using FPCService.Services.Place
+@using FPCService.Services.Packaging
 @using FPCService.Services
-@inject PlaceSlotService PlaceSlotService
+@inject PackagingService PackagingService
 @inject DataChangeNotificationService NotificationService
 @inject IJSRuntime JSRuntime
 @implements IDisposable
 
-<h3>場域插槽事件明細</h3>
+<h3>包裝事件明細</h3>
 
 <div class="mb-3">
     <button class="btn btn-primary" @onclick="ShowAddPopup">新增明細</button>
@@ -22,17 +22,15 @@
         ShowPager="true">
     <Columns>
         <DxGridDataColumn FieldName="UID" Caption="UID" Width="100px" />
-        <DxGridDataColumn FieldName="PlaceSlotUid" Caption="插槽編號" Width="120px" />
-        <DxGridDataColumn FieldName="PlaceUid" Caption="場域編號" Width="120px" />
-        <DxGridDataColumn FieldName="PlaceSlotPoint" Caption="插槽點位" Width="100px" />
-        <DxGridDataColumn FieldName="PlaceSlotStatus" Caption="插槽狀態" Width="100px" />
-        <DxGridDataColumn FieldName="Floor" Caption="樓層" Width="80px" />
-        <DxGridDataColumn FieldName="TaskUid" Caption="任務編號" Width="120px" />
+        <DxGridDataColumn FieldName="PackagingUid" Caption="包裝編號" Width="150px" />
+        <DxGridDataColumn FieldName="PackagingPoint" Caption="包裝點位" Width="120px" />
+        <DxGridDataColumn FieldName="Floor" Caption="樓層" Width="100px" />
+        <DxGridDataColumn FieldName="TaskUid" Caption="任務編號" Width="150px" />
         <DxGridDataColumn FieldName="OccurrenceTime" Caption="發生時間" Width="150px" DisplayFormat="yyyy-MM-dd HH:mm:ss" />
         <DxGridCommandColumn Width="100px">
             <HeaderTemplate>操作</HeaderTemplate>
             <CellDisplayTemplate>
-                <button class="btn btn-sm btn-danger" @onclick="@(() => DeleteDetail((context.DataItem as DetialPlaceSlot)!.UID))">刪除</button>
+                <button class="btn btn-sm btn-danger" @onclick="@(() => DeleteDetail((context.DataItem as DetailPackaging)!.UID))">刪除</button>
             </CellDisplayTemplate>
         </DxGridCommandColumn>
     </Columns>
@@ -44,25 +42,17 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">新增場域插槽事件明細</h5>
+                    <h5 class="modal-title">新增包裝事件明細</h5>
                     <button type="button" class="btn-close" @onclick="() => isPopupVisible = false"></button>
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label">插槽編號</label>
-                        <input type="text" class="form-control" @bind="editModel.PlaceSlotUid" />
+                        <label class="form-label">包裝編號</label>
+                        <input type="text" class="form-control" @bind="editModel.PackagingUid" />
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">場域編號</label>
-                        <input type="text" class="form-control" @bind="editModel.PlaceUid" />
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">插槽點位</label>
-                        <input type="number" class="form-control" @bind="editModel.PlaceSlotPoint" />
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">插槽狀態</label>
-                        <input type="text" class="form-control" @bind="editModel.PlaceSlotStatus" />
+                        <label class="form-label">包裝點位</label>
+                        <input type="number" class="form-control" @bind="editModel.PackagingPoint" />
                     </div>
                     <div class="mb-3">
                         <label class="form-label">樓層</label>
@@ -85,19 +75,19 @@
 
 @code {
     private IGrid? grid;
-    private List<DetialPlaceSlot> details = new();
+    private List<DetailPackaging> details = new();
     private bool isPopupVisible = false;
-    private DetialPlaceSlot editModel = new();
+    private DetailPackaging editModel = new();
 
     protected override async Task OnInitializedAsync()
     {
         await LoadData();
-        NotificationService.DetialPlaceSlotChanged += OnDataChanged;
+        NotificationService.DetailPackagingChanged += OnDataChanged;
     }
 
     private async Task LoadData()
     {
-        details = await PlaceSlotService.GetDetialPlaceSlotAsync();
+        details = await PackagingService.GetDetailPackagingAsync();
     }
 
     private async void OnDataChanged()
@@ -111,19 +101,17 @@
 
     public void Dispose()
     {
-        NotificationService.DetialPlaceSlotChanged -= OnDataChanged;
+        NotificationService.DetailPackagingChanged -= OnDataChanged;
     }
 
     private void ShowAddPopup()
     {
-        editModel = new DetialPlaceSlot
+        editModel = new DetailPackaging
         {
             OccurrenceTime = DateTime.Now,
             Floor = 1,
-            PlaceSlotPoint = 0,
-            PlaceSlotUid = "",
-            PlaceUid = "",
-            PlaceSlotStatus = "",
+            PackagingPoint = 0,
+            PackagingUid = "",
             TaskUid = ""
         };
         isPopupVisible = true;
@@ -132,7 +120,7 @@
     private async Task SaveDetail()
     {
         editModel.OccurrenceTime = DateTime.Now;
-        var success = await PlaceSlotService.InsertDetialPlaceSlotAsync(editModel);
+        var success = await PackagingService.InsertDetailPackagingAsync(editModel);
 
         if (success)
         {
@@ -145,7 +133,7 @@
     {
         if (await JSRuntime.InvokeAsync<bool>("confirm", $"確定要刪除明細 {uid} 嗎?"))
         {
-            await PlaceSlotService.DeleteDetialPlaceSlotAsync(uid);
+            await PackagingService.DeleteDetailPackagingAsync(uid);
             // 不需要手動呼叫 LoadData，通知機制會自動觸發
         }
     }

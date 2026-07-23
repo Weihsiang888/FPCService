@@ -1,6 +1,6 @@
-﻿namespace FPCService.Data
+namespace FPCService.Data
 {
-    public class DetialYarnMachine
+    public class DetailYarnMachine
     {
         public int UID { get; set; }
         public string YarnMachineUid { get; set; }

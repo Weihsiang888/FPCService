@@ -1,6 +1,6 @@
-﻿namespace FPCService.Data
+namespace FPCService.Data
 {
-    public class DetialPackaging
+    public class DetailPackaging
     {
         public int UID { get; set; }
         public string PackagingUid { get; set; }

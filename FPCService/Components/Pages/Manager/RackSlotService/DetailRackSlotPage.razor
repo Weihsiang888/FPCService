@@ -1,14 +1,14 @@
-@page "/yarnmachineslot/detail"
+@page "/rackslot/detail"
 @rendermode InteractiveServer
 @using FPCService.Data
-@using FPCService.Services.YarnMachine
+@using FPCService.Services.StorageRack
 @using FPCService.Services
-@inject YarnMachineSlotService YarnMachineSlotService
+@inject RackSlotService RackSlotService
 @inject DataChangeNotificationService NotificationService
 @inject IJSRuntime JSRuntime
 @implements IDisposable
 
-<h3>紡紗機插槽事件明細</h3>
+<h3>儲存架插槽事件明細</h3>
 
 <div class="mb-3">
     <button class="btn btn-primary" @onclick="ShowAddPopup">新增事件明細</button>
@@ -22,19 +22,18 @@
         ShowPager="true">
     <Columns>
         <DxGridDataColumn FieldName="UID" Caption="序號" Width="80px" />
-        <DxGridDataColumn FieldName="YarnMachineSlotUid" Caption="插槽編號" Width="150px" />
-        <DxGridDataColumn FieldName="YarnMachineUid" Caption="紡紗機編號" Width="150px" />
-        <DxGridDataColumn FieldName="YarnMachineSlotPoint" Caption="插槽點位" Width="120px" />
-        <DxGridDataColumn FieldName="YarnMachineSlotStatus" Caption="插槽狀態" Width="120px" />
-        <DxGridDataColumn FieldName="YarnSpoolType" Caption="紗筒類型" Width="120px" />
+        <DxGridDataColumn FieldName="RackSlotUid" Caption="插槽編號" Width="120px" />
+        <DxGridDataColumn FieldName="StorageRackUid" Caption="儲存架編號" Width="150px" />
+        <DxGridDataColumn FieldName="RackSlotPoint" Caption="插槽點位" Width="100px" />
+        <DxGridDataColumn FieldName="RackSlotStatus" Caption="插槽狀態" Width="100px" />
+        <DxGridDataColumn FieldName="YarnSpoolType" Caption="紗筒類型" Width="100px" />
         <DxGridDataColumn FieldName="Floor" Caption="樓層" Width="80px" />
-        <DxGridDataColumn FieldName="PointCode" Caption="點位代碼" Width="120px" />
         <DxGridDataColumn FieldName="TaskUid" Caption="任務編號" Width="120px" />
-        <DxGridDataColumn FieldName="OccurrenceTime" Caption="發生時間" Width="150px" DisplayFormat="yyyy-MM-dd HH:mm:ss" />
+        <DxGridDataColumn FieldName="OccurrenceTime" Caption="發生時間" Width="150px" />
         <DxGridCommandColumn Width="100px">
             <HeaderTemplate>操作</HeaderTemplate>
             <CellDisplayTemplate>
-                <button class="btn btn-sm btn-danger" @onclick="@(() => DeleteDetail((context.DataItem as DetialYarnMachineSlot)!.UID))">刪除</button>
+                <button class="btn btn-sm btn-danger" @onclick="@(() => DeleteDetail((context.DataItem as DetailRackSlot)!.UID))">刪除</button>
             </CellDisplayTemplate>
         </DxGridCommandColumn>
     </Columns>
@@ -53,21 +52,21 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">插槽編號</label>
-                            <input class="form-control" @bind="editModel.YarnMachineSlotUid" />
+                            <input class="form-control" @bind="editModel.RackSlotUid" />
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">紡紗機編號</label>
-                            <input class="form-control" @bind="editModel.YarnMachineUid" />
+                            <label class="form-label">儲存架編號</label>
+                            <input class="form-control" @bind="editModel.StorageRackUid" />
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">插槽點位</label>
-                            <input type="number" class="form-control" @bind="editModel.YarnMachineSlotPoint" />
+                            <input type="number" class="form-control" @bind="editModel.RackSlotPoint" />
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">插槽狀態</label>
-                            <input class="form-control" @bind="editModel.YarnMachineSlotStatus" />
+                            <input class="form-control" @bind="editModel.RackSlotStatus" />
                         </div>
                     </div>
                     <div class="row">
@@ -82,12 +81,12 @@
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">點位代碼</label>
-                            <input class="form-control" @bind="editModel.PointCode" />
-                        </div>
-                        <div class="col-md-6 mb-3">
                             <label class="form-label">任務編號</label>
                             <input class="form-control" @bind="editModel.TaskUid" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">發生時間</label>
+                            <input type="datetime-local" class="form-control" @bind="editModel.OccurrenceTime" readonly />
                         </div>
                     </div>
                 </div>
@@ -102,21 +101,21 @@
 }
 
 @code {
-    private List<DetialYarnMachineSlot> details = new();
+    private List<DetailRackSlot> details = new();
     private IGrid? grid;
     private bool isPopupVisible = false;
     private string popupTitle = "";
-    private DetialYarnMachineSlot editModel = new();
+    private DetailRackSlot editModel = new();
 
     protected override async Task OnInitializedAsync()
     {
         await LoadData();
-        NotificationService.DetialYarnMachineSlotChanged += OnDataChanged;
+        NotificationService.DetailRackSlotChanged += OnDataChanged;
     }
 
     private async Task LoadData()
     {
-        details = await YarnMachineSlotService.GetDetialYarnMachineSlotAsync();
+        details = await RackSlotService.GetDetailRackSlotAsync();
     }
 
     private async void OnDataChanged()
@@ -130,21 +129,21 @@
 
     public void Dispose()
     {
-        NotificationService.DetialYarnMachineSlotChanged -= OnDataChanged;
+        NotificationService.DetailRackSlotChanged -= OnDataChanged;
     }
 
     private void ShowAddPopup()
     {
         popupTitle = "新增事件明細";
-        editModel = new DetialYarnMachineSlot
+        editModel = new DetailRackSlot
         {
-            YarnMachineSlotUid = "",
-            YarnMachineUid = "",
-            YarnMachineSlotPoint = 0,
-            YarnMachineSlotStatus = "",
+            UID = 0,
+            RackSlotUid = "",
+            StorageRackUid = "",
+            RackSlotPoint = 0,
+            RackSlotStatus = "",
             YarnSpoolType = "",
             Floor = 1,
-            PointCode = "",
             TaskUid = "",
             OccurrenceTime = DateTime.Now
         };
@@ -155,7 +154,7 @@
     {
         try
         {
-            await YarnMachineSlotService.InsertDetialYarnMachineSlotAsync(editModel);
+            await RackSlotService.InsertDetailRackSlotAsync(editModel);
             isPopupVisible = false;
             await LoadData();
             StateHasChanged();
@@ -168,12 +167,12 @@
 
     private async Task DeleteDetail(int uid)
     {
-        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", $"確定要刪除此事件明細（序號：{uid}）嗎？");
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", $"確定要刪除事件明細 {uid} 嗎？");
         if (confirmed)
         {
             try
             {
-                await YarnMachineSlotService.DeleteDetialYarnMachineSlotAsync(uid);
+                await RackSlotService.DeleteDetailRackSlotAsync(uid);
                 await LoadData();
                 StateHasChanged();
             }

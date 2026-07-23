@@ -11,14 +11,14 @@ namespace FPCService.Services
 
         // MobileRobot 相關事件
         public event Action? MainMobileRobotChanged;
-        public event Action? DetialMobileRobotChanged;
+        public event Action? DetailMobileRobotChanged;
         public event Action? MobileRobotPointChanged;
         public event Action? QueueMobileRobotChanged;
         public event Action? LogMobileRobotChanged;
 
         // Packaging 相關事件
         public event Action? MainPackagingChanged;
-        public event Action? DetialPackagingChanged;
+        public event Action? DetailPackagingChanged;
         public event Action? QueuePackagingChanged;
         public event Action? LogPackagingChanged;
 
@@ -27,7 +27,7 @@ namespace FPCService.Services
 
         // PlaceSlot 相關事件
         public event Action? MainPlaceSlotChanged;
-        public event Action? DetialPlaceSlotChanged;
+        public event Action? DetailPlaceSlotChanged;
         public event Action? QueuePlaceSlotChanged;
         public event Action? LogPlaceSlotChanged;
 
@@ -36,17 +36,17 @@ namespace FPCService.Services
 
         // RackSlot 相關事件
         public event Action? MainRackSlotChanged;
-        public event Action? DetialRackSlotChanged;
+        public event Action? DetailRackSlotChanged;
         public event Action? QueueRackSlotChanged;
         public event Action? LogRackSlotChanged;
 
         // YarnMachine 相關事件
         public event Action? MainYarnMachineChanged;
-        public event Action? DetialYarnMachineChanged;
+        public event Action? DetailYarnMachineChanged;
 
         // YarnMachineSlot 相關事件
         public event Action? MainYarnMachineSlotChanged;
-        public event Action? DetialYarnMachineSlotChanged;
+        public event Action? DetailYarnMachineSlotChanged;
         public event Action? QueueYarnMachineSlotChanged;
         public event Action? LogYarnMachineSlotChanged;
 
@@ -55,14 +55,14 @@ namespace FPCService.Services
 
         // 通知方法 - MobileRobot
         public void NotifyMainMobileRobotChanged() => MainMobileRobotChanged?.Invoke();
-        public void NotifyDetialMobileRobotChanged() => DetialMobileRobotChanged?.Invoke();
+        public void NotifyDetailMobileRobotChanged() => DetailMobileRobotChanged?.Invoke();
         public void NotifyMobileRobotPointChanged() => MobileRobotPointChanged?.Invoke();
         public void NotifyQueueMobileRobotChanged() => QueueMobileRobotChanged?.Invoke();
         public void NotifyLogMobileRobotChanged() => LogMobileRobotChanged?.Invoke();
 
         // 通知方法 - Packaging
         public void NotifyMainPackagingChanged() => MainPackagingChanged?.Invoke();
-        public void NotifyDetialPackagingChanged() => DetialPackagingChanged?.Invoke();
+        public void NotifyDetailPackagingChanged() => DetailPackagingChanged?.Invoke();
         public void NotifyQueuePackagingChanged() => QueuePackagingChanged?.Invoke();
         public void NotifyLogPackagingChanged() => LogPackagingChanged?.Invoke();
 
@@ -71,7 +71,7 @@ namespace FPCService.Services
 
         // 通知方法 - PlaceSlot
         public void NotifyMainPlaceSlotChanged() => MainPlaceSlotChanged?.Invoke();
-        public void NotifyDetialPlaceSlotChanged() => DetialPlaceSlotChanged?.Invoke();
+        public void NotifyDetailPlaceSlotChanged() => DetailPlaceSlotChanged?.Invoke();
         public void NotifyQueuePlaceSlotChanged() => QueuePlaceSlotChanged?.Invoke();
         public void NotifyLogPlaceSlotChanged() => LogPlaceSlotChanged?.Invoke();
 
@@ -80,17 +80,17 @@ namespace FPCService.Services
 
         // 通知方法 - RackSlot
         public void NotifyMainRackSlotChanged() => MainRackSlotChanged?.Invoke();
-        public void NotifyDetialRackSlotChanged() => DetialRackSlotChanged?.Invoke();
+        public void NotifyDetailRackSlotChanged() => DetailRackSlotChanged?.Invoke();
         public void NotifyQueueRackSlotChanged() => QueueRackSlotChanged?.Invoke();
         public void NotifyLogRackSlotChanged() => LogRackSlotChanged?.Invoke();
 
         // 通知方法 - YarnMachine
         public void NotifyMainYarnMachineChanged() => MainYarnMachineChanged?.Invoke();
-        public void NotifyDetialYarnMachineChanged() => DetialYarnMachineChanged?.Invoke();
+        public void NotifyDetailYarnMachineChanged() => DetailYarnMachineChanged?.Invoke();
 
         // 通知方法 - YarnMachineSlot
         public void NotifyMainYarnMachineSlotChanged() => MainYarnMachineSlotChanged?.Invoke();
-        public void NotifyDetialYarnMachineSlotChanged() => DetialYarnMachineSlotChanged?.Invoke();
+        public void NotifyDetailYarnMachineSlotChanged() => DetailYarnMachineSlotChanged?.Invoke();
         public void NotifyQueueYarnMachineSlotChanged() => QueueYarnMachineSlotChanged?.Invoke();
         public void NotifyLogYarnMachineSlotChanged() => LogYarnMachineSlotChanged?.Invoke();
 

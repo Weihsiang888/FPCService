@@ -1,6 +1,6 @@
-﻿namespace FPCService.Data
+namespace FPCService.Data
 {
-    public class DetialMobileRobot
+    public class DetailMobileRobot
     {
         public int UID { get; set; }
         public string MobileRobotUid { get; set; }

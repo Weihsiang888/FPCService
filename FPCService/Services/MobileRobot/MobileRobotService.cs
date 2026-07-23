@@ -78,51 +78,51 @@ namespace FPCService.Services.MobileRobot
 
         #endregion
 
-        #region DetialMobileRobot CRUD
+        #region DetailMobileRobot CRUD
 
         /// <summary>
         /// 取得全部行動機器人事件明細
         /// </summary>
-        public async Task<List<DetialMobileRobot>> GetDetialMobileRobotAsync()
+        public async Task<List<DetailMobileRobot>> GetDetailMobileRobotAsync()
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
-            return await db.DetialMobileRobot.AsNoTracking().ToListAsync();
+            return await db.DetailMobileRobot.AsNoTracking().ToListAsync();
         }
 
         /// <summary>
         /// 依 UID 取得行動機器人事件明細
         /// </summary>
-        public async Task<DetialMobileRobot?> GetDetialMobileRobotByUidAsync(int uid)
+        public async Task<DetailMobileRobot?> GetDetailMobileRobotByUidAsync(int uid)
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
-            return await db.DetialMobileRobot.AsNoTracking()
+            return await db.DetailMobileRobot.AsNoTracking()
                 .FirstOrDefaultAsync(x => x.UID == uid);
         }
 
         /// <summary>
         /// 新增行動機器人事件明細
         /// </summary>
-        public async Task<bool> InsertDetialMobileRobotAsync(DetialMobileRobot entity)
+        public async Task<bool> InsertDetailMobileRobotAsync(DetailMobileRobot entity)
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
-            db.DetialMobileRobot.Add(entity);
+            db.DetailMobileRobot.Add(entity);
             var result = await db.SaveChangesAsync() > 0;
-            if (result) _notificationService.NotifyDetialMobileRobotChanged();
+            if (result) _notificationService.NotifyDetailMobileRobotChanged();
             return result;
         }
 
         /// <summary>
         /// 刪除行動機器人事件明細
         /// </summary>
-        public async Task<bool> DeleteDetialMobileRobotAsync(int uid)
+        public async Task<bool> DeleteDetailMobileRobotAsync(int uid)
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
-            var item = await db.DetialMobileRobot.FirstOrDefaultAsync(x => x.UID == uid);
+            var item = await db.DetailMobileRobot.FirstOrDefaultAsync(x => x.UID == uid);
             if (item == null) return false;
 
-            db.DetialMobileRobot.Remove(item);
+            db.DetailMobileRobot.Remove(item);
             var result = await db.SaveChangesAsync() > 0;
-            if (result) _notificationService.NotifyDetialMobileRobotChanged();
+            if (result) _notificationService.NotifyDetailMobileRobotChanged();
             return result;
         }
 

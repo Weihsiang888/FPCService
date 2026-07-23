@@ -78,51 +78,51 @@ namespace FPCService.Services.YarnMachine
 
         #endregion
 
-        #region DetialYarnMachine CRUD
+        #region DetailYarnMachine CRUD
 
         /// <summary>
         /// 取得全部紡紗機事件明細
         /// </summary>
-        public async Task<List<DetialYarnMachine>> GetDetialYarnMachineAsync()
+        public async Task<List<DetailYarnMachine>> GetDetailYarnMachineAsync()
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
-            return await db.DetialYarnMachine.AsNoTracking().ToListAsync();
+            return await db.DetailYarnMachine.AsNoTracking().ToListAsync();
         }
 
         /// <summary>
         /// 依 UID 取得紡紗機事件明細
         /// </summary>
-        public async Task<DetialYarnMachine?> GetDetialYarnMachineByUidAsync(int uid)
+        public async Task<DetailYarnMachine?> GetDetailYarnMachineByUidAsync(int uid)
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
-            return await db.DetialYarnMachine.AsNoTracking()
+            return await db.DetailYarnMachine.AsNoTracking()
                 .FirstOrDefaultAsync(x => x.UID == uid);
         }
 
         /// <summary>
         /// 新增紡紗機事件明細
         /// </summary>
-        public async Task<bool> InsertDetialYarnMachineAsync(DetialYarnMachine entity)
+        public async Task<bool> InsertDetailYarnMachineAsync(DetailYarnMachine entity)
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
-            db.DetialYarnMachine.Add(entity);
+            db.DetailYarnMachine.Add(entity);
             var result = await db.SaveChangesAsync() > 0;
-            if (result) _notificationService.NotifyDetialYarnMachineChanged();
+            if (result) _notificationService.NotifyDetailYarnMachineChanged();
             return result;
         }
 
         /// <summary>
         /// 刪除紡紗機事件明細
         /// </summary>
-        public async Task<bool> DeleteDetialYarnMachineAsync(int uid)
+        public async Task<bool> DeleteDetailYarnMachineAsync(int uid)
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
-            var item = await db.DetialYarnMachine.FirstOrDefaultAsync(x => x.UID == uid);
+            var item = await db.DetailYarnMachine.FirstOrDefaultAsync(x => x.UID == uid);
             if (item == null) return false;
 
-            db.DetialYarnMachine.Remove(item);
+            db.DetailYarnMachine.Remove(item);
             var result = await db.SaveChangesAsync() > 0;
-            if (result) _notificationService.NotifyDetialYarnMachineChanged();
+            if (result) _notificationService.NotifyDetailYarnMachineChanged();
             return result;
         }
 

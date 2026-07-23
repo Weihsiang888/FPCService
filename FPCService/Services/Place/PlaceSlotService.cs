@@ -78,51 +78,51 @@ namespace FPCService.Services.Place
 
         #endregion
 
-        #region DetialPlaceSlot CRUD
+        #region DetailPlaceSlot CRUD
 
         /// <summary>
         /// 取得全部場域插槽事件明細
         /// </summary>
-        public async Task<List<DetialPlaceSlot>> GetDetialPlaceSlotAsync()
+        public async Task<List<DetailPlaceSlot>> GetDetailPlaceSlotAsync()
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
-            return await db.DetialPlaceSlot.AsNoTracking().ToListAsync();
+            return await db.DetailPlaceSlot.AsNoTracking().ToListAsync();
         }
 
         /// <summary>
         /// 依 UID 取得場域插槽事件明細
         /// </summary>
-        public async Task<DetialPlaceSlot?> GetDetialPlaceSlotByUidAsync(int uid)
+        public async Task<DetailPlaceSlot?> GetDetailPlaceSlotByUidAsync(int uid)
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
-            return await db.DetialPlaceSlot.AsNoTracking()
+            return await db.DetailPlaceSlot.AsNoTracking()
                 .FirstOrDefaultAsync(x => x.UID == uid);
         }
 
         /// <summary>
         /// 新增場域插槽事件明細
         /// </summary>
-        public async Task<bool> InsertDetialPlaceSlotAsync(DetialPlaceSlot entity)
+        public async Task<bool> InsertDetailPlaceSlotAsync(DetailPlaceSlot entity)
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
-            db.DetialPlaceSlot.Add(entity);
+            db.DetailPlaceSlot.Add(entity);
             var result = await db.SaveChangesAsync() > 0;
-            if (result) _notificationService.NotifyDetialPlaceSlotChanged();
+            if (result) _notificationService.NotifyDetailPlaceSlotChanged();
             return result;
         }
 
         /// <summary>
         /// 刪除場域插槽事件明細
         /// </summary>
-        public async Task<bool> DeleteDetialPlaceSlotAsync(int uid)
+        public async Task<bool> DeleteDetailPlaceSlotAsync(int uid)
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
-            var item = await db.DetialPlaceSlot.FirstOrDefaultAsync(x => x.UID == uid);
+            var item = await db.DetailPlaceSlot.FirstOrDefaultAsync(x => x.UID == uid);
             if (item == null) return false;
 
-            db.DetialPlaceSlot.Remove(item);
+            db.DetailPlaceSlot.Remove(item);
             var result = await db.SaveChangesAsync() > 0;
-            if (result) _notificationService.NotifyDetialPlaceSlotChanged();
+            if (result) _notificationService.NotifyDetailPlaceSlotChanged();
             return result;
         }
 

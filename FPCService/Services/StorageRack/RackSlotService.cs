@@ -78,51 +78,51 @@ namespace FPCService.Services.StorageRack
 
         #endregion
 
-        #region DetialRackSlot CRUD
+        #region DetailRackSlot CRUD
 
         /// <summary>
         /// 取得全部儲存架插槽事件明細
         /// </summary>
-        public async Task<List<DetialRackSlot>> GetDetialRackSlotAsync()
+        public async Task<List<DetailRackSlot>> GetDetailRackSlotAsync()
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
-            return await db.DetialRackSlot.AsNoTracking().ToListAsync();
+            return await db.DetailRackSlot.AsNoTracking().ToListAsync();
         }
 
         /// <summary>
         /// 依 UID 取得儲存架插槽事件明細
         /// </summary>
-        public async Task<DetialRackSlot?> GetDetialRackSlotByUidAsync(int uid)
+        public async Task<DetailRackSlot?> GetDetailRackSlotByUidAsync(int uid)
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
-            return await db.DetialRackSlot.AsNoTracking()
+            return await db.DetailRackSlot.AsNoTracking()
                 .FirstOrDefaultAsync(x => x.UID == uid);
         }
 
         /// <summary>
         /// 新增儲存架插槽事件明細
         /// </summary>
-        public async Task<bool> InsertDetialRackSlotAsync(DetialRackSlot entity)
+        public async Task<bool> InsertDetailRackSlotAsync(DetailRackSlot entity)
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
-            db.DetialRackSlot.Add(entity);
+            db.DetailRackSlot.Add(entity);
             var result = await db.SaveChangesAsync() > 0;
-            if (result) _notificationService.NotifyDetialRackSlotChanged();
+            if (result) _notificationService.NotifyDetailRackSlotChanged();
             return result;
         }
 
         /// <summary>
         /// 刪除儲存架插槽事件明細
         /// </summary>
-        public async Task<bool> DeleteDetialRackSlotAsync(int uid)
+        public async Task<bool> DeleteDetailRackSlotAsync(int uid)
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync();
-            var item = await db.DetialRackSlot.FirstOrDefaultAsync(x => x.UID == uid);
+            var item = await db.DetailRackSlot.FirstOrDefaultAsync(x => x.UID == uid);
             if (item == null) return false;
 
-            db.DetialRackSlot.Remove(item);
+            db.DetailRackSlot.Remove(item);
             var result = await db.SaveChangesAsync() > 0;
-            if (result) _notificationService.NotifyDetialRackSlotChanged();
+            if (result) _notificationService.NotifyDetailRackSlotChanged();
             return result;
         }
 
