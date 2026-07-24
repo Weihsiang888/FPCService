@@ -35,7 +35,7 @@
   - TaskUid (任務編號)
 - **操作**: 新增、編輯、刪除
 
-#### 2. DetialPlaceSlotPage.razor
+#### 2. DetailPlaceSlotPage.razor
 - **路由**: `/placeslot/detail`
 - **功能**: 場域插槽事件明細
 - **欄位**:
@@ -91,7 +91,7 @@ public event Action? MainPlaceChanged;
 
 // PlaceSlot 相關事件
 public event Action? MainPlaceSlotChanged;
-public event Action? DetialPlaceSlotChanged;
+public event Action? DetailPlaceSlotChanged;
 public event Action? QueuePlaceSlotChanged;
 public event Action? LogPlaceSlotChanged;
 
@@ -100,7 +100,7 @@ public void NotifyMainPlaceChanged() => MainPlaceChanged?.Invoke();
 
 // 通知方法 - PlaceSlot
 public void NotifyMainPlaceSlotChanged() => MainPlaceSlotChanged?.Invoke();
-public void NotifyDetialPlaceSlotChanged() => DetialPlaceSlotChanged?.Invoke();
+public void NotifyDetailPlaceSlotChanged() => DetailPlaceSlotChanged?.Invoke();
 public void NotifyQueuePlaceSlotChanged() => QueuePlaceSlotChanged?.Invoke();
 public void NotifyLogPlaceSlotChanged() => LogPlaceSlotChanged?.Invoke();
 ```
@@ -154,7 +154,7 @@ public class PlaceSlotService
 	}
 
 	// MainPlaceSlot CRUD 操作後通知 MainPlaceSlotChanged
-	// DetialPlaceSlot CRUD 操作後通知 DetialPlaceSlotChanged
+	// DetailPlaceSlot CRUD 操作後通知 DetailPlaceSlotChanged
 	// QueuePlaceSlot CRUD 操作後通知 QueuePlaceSlotChanged
 	// LogPlaceSlot CRUD 操作後通知 LogPlaceSlotChanged
 }
@@ -259,7 +259,7 @@ public class PlaceSlotService
 ### PlaceSlotService
 - **服務檔案**: `FPCService/Services/Place/PlaceSlotService.cs`
 - **頁面目錄**: `FPCService/Components/Pages/PlaceSlotService/`
-- **實體類別**: `MainPlaceSlot`, `DetialPlaceSlot`, `QueuePlaceSlot`, `LogPlaceSlot`
+- **實體類別**: `MainPlaceSlot`, `DetailPlaceSlot`, `QueuePlaceSlot`, `LogPlaceSlot`
 
 ## 與其他服務的關聯
 

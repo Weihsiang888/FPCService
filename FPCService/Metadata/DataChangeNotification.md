@@ -17,7 +17,7 @@ public class DataChangeNotificationService
 {
 	// 定義各種資料表的變更事件
 	public event Action? MainMobileRobotChanged;
-	public event Action? DetialMobileRobotChanged;
+	public event Action? DetailMobileRobotChanged;
 	public event Action? MobileRobotPointChanged;
 	public event Action? QueueMobileRobotChanged;
 	public event Action? LogMobileRobotChanged;
@@ -186,7 +186,7 @@ NotificationService.NewDomainChanged -= OnDataChanged;
 | 事件名稱 | 觸發時機 | 訂閱頁面 |
 |---------|---------|---------|
 | `MainMobileRobotChanged` | Main_MobileRobot 資料表變更 | MainMobileRobotPage.razor |
-| `DetialMobileRobotChanged` | Detial_MobileRobot 資料表變更 | DetialMobileRobotPage.razor |
+| `DetailMobileRobotChanged` | Detail_MobileRobot 資料表變更 | DetailMobileRobotPage.razor |
 | `MobileRobotPointChanged` | MobileRobotPoint 資料表變更 | MobileRobotPointPage.razor |
 | `QueueMobileRobotChanged` | Queue_MobileRobot 資料表變更 | QueueMobileRobotPage.razor |
 | `LogMobileRobotChanged` | Log_MobileRobot 資料表變更 | LogMobileRobotPage.razor |

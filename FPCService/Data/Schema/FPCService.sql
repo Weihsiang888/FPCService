@@ -96,12 +96,12 @@ CREATE TABLE [dbo].[__EFMigrationsHistory](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** 物件:  Table [dbo].[Detial_MobileRobot]    指令碼日期: 2026/7/3 上午 10:07:35 ******/
+/****** 物件:  Table [dbo].[Detail_MobileRobot]    指令碼日期: 2026/7/3 上午 10:07:35 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE TABLE [dbo].[Detial_MobileRobot](
+CREATE TABLE [dbo].[Detail_MobileRobot](
 	[UID] [int] IDENTITY(1,1) NOT NULL,
 	[MobileRobot_UID] [varchar](60) NOT NULL,
 	[MobileRobot_Status] [varchar](60) NOT NULL,
@@ -117,12 +117,12 @@ PRIMARY KEY CLUSTERED
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** 物件:  Table [dbo].[Detial_Packaging]    指令碼日期: 2026/7/3 上午 10:07:35 ******/
+/****** 物件:  Table [dbo].[Detail_Packaging]    指令碼日期: 2026/7/3 上午 10:07:35 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE TABLE [dbo].[Detial_Packaging](
+CREATE TABLE [dbo].[Detail_Packaging](
 	[UID] [int] IDENTITY(1,1) NOT NULL,
 	[Packaging_UID] [varchar](60) NOT NULL,
 	[Packaging_Point] [int] NOT NULL,
@@ -135,12 +135,12 @@ PRIMARY KEY CLUSTERED
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** 物件:  Table [dbo].[Detial_PlaceSlot]    指令碼日期: 2026/7/3 上午 10:07:35 ******/
+/****** 物件:  Table [dbo].[Detail_PlaceSlot]    指令碼日期: 2026/7/3 上午 10:07:35 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE TABLE [dbo].[Detial_PlaceSlot](
+CREATE TABLE [dbo].[Detail_PlaceSlot](
 	[UID] [int] IDENTITY(1,1) NOT NULL,
 	[PlaceSlot_UID] [varchar](60) NOT NULL,
 	[Place_UID] [varchar](60) NOT NULL,
@@ -155,12 +155,12 @@ PRIMARY KEY CLUSTERED
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** 物件:  Table [dbo].[Detial_RackSlot]    指令碼日期: 2026/7/3 上午 10:07:35 ******/
+/****** 物件:  Table [dbo].[Detail_RackSlot]    指令碼日期: 2026/7/3 上午 10:07:35 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE TABLE [dbo].[Detial_RackSlot](
+CREATE TABLE [dbo].[Detail_RackSlot](
 	[UID] [int] IDENTITY(1,1) NOT NULL,
 	[RackSlot_UID] [varchar](60) NOT NULL,
 	[StorageRack_UID] [varchar](60) NOT NULL,
@@ -176,12 +176,12 @@ PRIMARY KEY CLUSTERED
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** 物件:  Table [dbo].[Detial_YarnMachine]    指令碼日期: 2026/7/3 上午 10:07:35 ******/
+/****** 物件:  Table [dbo].[Detail_YarnMachine]    指令碼日期: 2026/7/3 上午 10:07:35 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE TABLE [dbo].[Detial_YarnMachine](
+CREATE TABLE [dbo].[Detail_YarnMachine](
 	[UID] [int] IDENTITY(1,1) NOT NULL,
 	[YarnMachine_UID] [varchar](60) NOT NULL,
 	[YarnMachine_Status] [varchar](60) NOT NULL,
@@ -197,12 +197,12 @@ PRIMARY KEY CLUSTERED
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** 物件:  Table [dbo].[Detial_YarnMachineSlot]    指令碼日期: 2026/7/3 上午 10:07:35 ******/
+/****** 物件:  Table [dbo].[Detail_YarnMachineSlot]    指令碼日期: 2026/7/3 上午 10:07:35 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE TABLE [dbo].[Detial_YarnMachineSlot](
+CREATE TABLE [dbo].[Detail_YarnMachineSlot](
 	[UID] [int] IDENTITY(1,1) NOT NULL,
 	[YarnMachineSlot_UID] [varchar](60) NOT NULL,
 	[YarnMachine_UID] [varchar](60) NOT NULL,
@@ -805,17 +805,17 @@ CREATE NONCLUSTERED INDEX [IX_TagWarningUshortConditions_TagId] ON [dbo].[TagWar
 	[TagId] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 GO
-ALTER TABLE [dbo].[Detial_MobileRobot] ADD  DEFAULT (getdate()) FOR [Occurrence_Time]
+ALTER TABLE [dbo].[Detail_MobileRobot] ADD  DEFAULT (getdate()) FOR [Occurrence_Time]
 GO
-ALTER TABLE [dbo].[Detial_Packaging] ADD  DEFAULT (getdate()) FOR [Occurrence_Time]
+ALTER TABLE [dbo].[Detail_Packaging] ADD  DEFAULT (getdate()) FOR [Occurrence_Time]
 GO
-ALTER TABLE [dbo].[Detial_PlaceSlot] ADD  DEFAULT (getdate()) FOR [Occurrence_Time]
+ALTER TABLE [dbo].[Detail_PlaceSlot] ADD  DEFAULT (getdate()) FOR [Occurrence_Time]
 GO
-ALTER TABLE [dbo].[Detial_RackSlot] ADD  DEFAULT (getdate()) FOR [Occurrence_Time]
+ALTER TABLE [dbo].[Detail_RackSlot] ADD  DEFAULT (getdate()) FOR [Occurrence_Time]
 GO
-ALTER TABLE [dbo].[Detial_YarnMachine] ADD  DEFAULT (getdate()) FOR [Occurrence_Time]
+ALTER TABLE [dbo].[Detail_YarnMachine] ADD  DEFAULT (getdate()) FOR [Occurrence_Time]
 GO
-ALTER TABLE [dbo].[Detial_YarnMachineSlot] ADD  DEFAULT (getdate()) FOR [Occurrence_Time]
+ALTER TABLE [dbo].[Detail_YarnMachineSlot] ADD  DEFAULT (getdate()) FOR [Occurrence_Time]
 GO
 ALTER TABLE [dbo].[Log_MobileRobot] ADD  DEFAULT (getdate()) FOR [Process_Time]
 GO

@@ -82,12 +82,12 @@ CommonLibrary/                   # 共用類別庫 (外部專案)
 
 #### 2️⃣ Detail（明細/歷史）
 記錄實體的歷史變更資訊：
-- `DetialYarnMachine` - 紡紗機歷史明細
-- `DetialYarnMachineSlot` - 紡紗機插槽歷史明細
-- `DetialMobileRobot` - 行動機器人歷史明細
-- `DetialPlaceSlot` - 場域插槽歷史明細
-- `DetialRackSlot` - 儲存架插槽歷史明細
-- `DetialPackaging` - 包裝歷史明細
+- `DetailYarnMachine` - 紡紗機歷史明細
+- `DetailYarnMachineSlot` - 紡紗機插槽歷史明細
+- `DetailMobileRobot` - 行動機器人歷史明細
+- `DetailPlaceSlot` - 場域插槽歷史明細
+- `DetailRackSlot` - 儲存架插槽歷史明細
+- `DetailPackaging` - 包裝歷史明細
 
 **特性**:
 - 包含 `UID` (自動編號主鍵) 和 `OccurrenceTime` (發生時間)
@@ -170,12 +170,12 @@ public class DSDBContext : DbContext
 - `InsertMainYarnMachineAsync(entity)` - 新增
 - `UpdateMainYarnMachineAsync(entity)` - 更新
 - `DeleteMainYarnMachineAsync(uid)` - 刪除
-- `GetDetialYarnMachineAsync()` - 取得歷史明細
-- `InsertDetialYarnMachineAsync(entity)` - 新增明細
+- `GetDetailYarnMachineAsync()` - 取得歷史明細
+- `InsertDetailYarnMachineAsync(entity)` - 新增明細
 
 ##### YarnMachineSlotService
 - MainYarnMachineSlot CRUD
-- DetialYarnMachineSlot CRUD
+- DetailYarnMachineSlot CRUD
 - QueueYarnMachineSlot CRUD (含 Update)
 - LogYarnMachineSlot 新增/查詢
 
@@ -194,7 +194,7 @@ public class DSDBContext : DbContext
 
 ##### MobileRobotService
 - MainMobileRobot CRUD
-- DetialMobileRobot CRUD
+- DetailMobileRobot CRUD
 - MobileRobotPoint CRUD (點位管理)
 - QueueMobileRobot CRUD (含 Update)
 - LogMobileRobot 新增/查詢
@@ -207,7 +207,7 @@ public class DSDBContext : DbContext
 
 ##### PlaceSlotService
 - MainPlaceSlot CRUD
-- DetialPlaceSlot CRUD
+- DetailPlaceSlot CRUD
 - QueuePlaceSlot CRUD (含 Update)
 - LogPlaceSlot 新增/查詢
 
@@ -219,7 +219,7 @@ public class DSDBContext : DbContext
 
 ##### RackSlotService
 - MainRackSlot CRUD
-- DetialRackSlot CRUD
+- DetailRackSlot CRUD
 - QueueRackSlot CRUD (含 Update)
 - LogRackSlot 新增/查詢
 
@@ -228,7 +228,7 @@ public class DSDBContext : DbContext
 
 ##### PackagingService
 - MainPackaging CRUD
-- DetialPackaging CRUD
+- DetailPackaging CRUD
 - QueuePackaging CRUD (含 Update)
 - LogPackaging 新增/查詢
 

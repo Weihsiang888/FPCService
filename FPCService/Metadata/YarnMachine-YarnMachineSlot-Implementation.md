@@ -12,13 +12,13 @@
 
 #### YarnMachine 事件
 - `MainYarnMachineChanged` - 紡紗機主檔變更事件
-- `DetialYarnMachineChanged` - 紡紗機事件明細變更事件
+- `DetailYarnMachineChanged` - 紡紗機事件明細變更事件
 - `NotifyMainYarnMachineChanged()` - 觸發紡紗機主檔變更通知
-- `NotifyDetialYarnMachineChanged()` - 觸發紡紗機事件明細變更通知
+- `NotifyDetailYarnMachineChanged()` - 觸發紡紗機事件明細變更通知
 
 #### YarnMachineSlot 事件
 - `MainYarnMachineSlotChanged` - 紡紗機插槽主檔變更事件
-- `DetialYarnMachineSlotChanged` - 紡紗機插槽事件明細變更事件
+- `DetailYarnMachineSlotChanged` - 紡紗機插槽事件明細變更事件
 - `QueueYarnMachineSlotChanged` - 紡紗機插槽佇列變更事件
 - `LogYarnMachineSlotChanged` - 紡紗機插槽紀錄變更事件
 - 對應的 `Notify*Changed()` 方法
@@ -31,7 +31,7 @@
 - 注入 `DataChangeNotificationService`
 - 在以下方法中加入通知機制：
   - **MainYarnMachine CRUD：** `Insert`、`Update`、`Delete` 後通知
-  - **DetialYarnMachine CRUD：** `Insert`、`Delete` 後通知
+  - **DetailYarnMachine CRUD：** `Insert`、`Delete` 後通知
 
 #### YarnMachineSlotService
 **檔案：** `FPCService/Services/YarnMachine/YarnMachineSlotService.cs`
@@ -39,7 +39,7 @@
 - 注入 `DataChangeNotificationService`
 - 在以下方法中加入通知機制：
   - **MainYarnMachineSlot CRUD：** `Insert`、`Update`、`Delete` 後通知
-  - **DetialYarnMachineSlot CRUD：** `Insert`、`Delete` 後通知
+  - **DetailYarnMachineSlot CRUD：** `Insert`、`Delete` 後通知
   - **QueueYarnMachineSlot CRUD：** `Insert`、`Update`、`Delete` 後通知
   - **LogYarnMachineSlot CRUD：** `Insert` 後通知
 
@@ -61,7 +61,7 @@
   - TaskUid - 任務編號
   - ProcessTime - 處理時間
 
-##### DetialYarnMachinePage.razor
+##### DetailYarnMachinePage.razor
 - **路由：** `/yarnmachine/detail`
 - **功能：** 紡紗機事件明細
 - **欄位：** MainYarnMachine 欄位 + UID、OccurrenceTime
@@ -82,7 +82,7 @@
   - PointCode - 點位代碼
   - TaskUid - 任務編號
 
-##### DetialYarnMachineSlotPage.razor
+##### DetailYarnMachineSlotPage.razor
 - **路由：** `/yarnmachineslot/detail`
 - **功能：** 紡紗機插槽事件明細
 - **欄位：** MainYarnMachineSlot 欄位 + UID、OccurrenceTime
@@ -176,23 +176,23 @@ public void Dispose()
 
 ### 新增的檔案
 - `FPCService/Components/Pages/YarnMachineService/MainYarnMachinePage.razor`
-- `FPCService/Components/Pages/YarnMachineService/DetialYarnMachinePage.razor`
+- `FPCService/Components/Pages/YarnMachineService/DetailYarnMachinePage.razor`
 - `FPCService/Components/Pages/YarnMachineSlotService/MainYarnMachineSlotPage.razor`
-- `FPCService/Components/Pages/YarnMachineSlotService/DetialYarnMachineSlotPage.razor`
+- `FPCService/Components/Pages/YarnMachineSlotService/DetailYarnMachineSlotPage.razor`
 - `FPCService/Components/Pages/YarnMachineSlotService/QueueYarnMachineSlotPage.razor`
 - `FPCService/Components/Pages/YarnMachineSlotService/LogYarnMachineSlotPage.razor`
 
 ## 與其他服務的一致性
 
 本次實作延續了已建立的模式：
-- **MobileRobotService** - 5 個頁面（Main, Detial, Point, Queue, Log）
-- **PackagingService** - 4 個頁面（Main, Detial, Queue, Log）
+- **MobileRobotService** - 5 個頁面（Main, Detail, Point, Queue, Log）
+- **PackagingService** - 4 個頁面（Main, Detail, Queue, Log）
 - **PlaceService** - 1 個頁面（Main）
-- **PlaceSlotService** - 4 個頁面（Main, Detial, Queue, Log）
+- **PlaceSlotService** - 4 個頁面（Main, Detail, Queue, Log）
 - **StorageRackService** - 1 個頁面（Main）
-- **RackSlotService** - 4 個頁面（Main, Detial, Queue, Log）
-- **YarnMachineService** - 2 個頁面（Main, Detial）✅
-- **YarnMachineSlotService** - 4 個頁面（Main, Detial, Queue, Log）✅
+- **RackSlotService** - 4 個頁面（Main, Detail, Queue, Log）
+- **YarnMachineService** - 2 個頁面（Main, Detail）✅
+- **YarnMachineSlotService** - 4 個頁面（Main, Detail, Queue, Log）✅
 
 ## 後續工作
 

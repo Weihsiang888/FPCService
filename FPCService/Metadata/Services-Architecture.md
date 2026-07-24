@@ -12,12 +12,12 @@
 #### YarnMachineService
 處理紡紗機主檔和事件明細：
 - `MainYarnMachine` CRUD
-- `DetialYarnMachine` CRUD
+- `DetailYarnMachine` CRUD
 
 #### YarnMachineSlotService
 處理紡紗機插槽相關資料：
 - `MainYarnMachineSlot` CRUD
-- `DetialYarnMachineSlot` CRUD
+- `DetailYarnMachineSlot` CRUD
 - `QueueYarnMachineSlot` CRUD（含 Update）
 - `LogYarnMachineSlot` 新增/查詢
 
@@ -38,7 +38,7 @@
 #### MobileRobotService
 處理行動機器人相關資料：
 - `MainMobileRobot` CRUD
-- `DetialMobileRobot` CRUD
+- `DetailMobileRobot` CRUD
 - `MobileRobotPoint` CRUD
 - `QueueMobileRobot` CRUD（含 Update）
 - `LogMobileRobot` 新增/查詢
@@ -55,7 +55,7 @@
 #### PlaceSlotService
 處理場域插槽相關資料：
 - `MainPlaceSlot` CRUD
-- `DetialPlaceSlot` CRUD
+- `DetailPlaceSlot` CRUD
 - `QueuePlaceSlot` CRUD（含 Update）
 - `LogPlaceSlot` 新增/查詢
 
@@ -71,7 +71,7 @@
 #### RackSlotService
 處理儲存架插槽相關資料：
 - `MainRackSlot` CRUD
-- `DetialRackSlot` CRUD
+- `DetailRackSlot` CRUD
 - `QueueRackSlot` CRUD（含 Update）
 - `LogRackSlot` 新增/查詢
 
@@ -83,7 +83,7 @@
 #### PackagingService
 處理包裝相關資料：
 - `MainPackaging` CRUD
-- `DetialPackaging` CRUD
+- `DetailPackaging` CRUD
 - `QueuePackaging` CRUD（含 Update）
 - `LogPackaging` 新增/查詢
 

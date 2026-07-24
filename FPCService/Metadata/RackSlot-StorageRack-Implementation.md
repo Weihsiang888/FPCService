@@ -16,7 +16,7 @@
 
 #### RackSlot 事件
 - `MainRackSlotChanged` - 插槽主檔變更事件
-- `DetialRackSlotChanged` - 插槽事件明細變更事件
+- `DetailRackSlotChanged` - 插槽事件明細變更事件
 - `QueueRackSlotChanged` - 插槽佇列變更事件
 - `LogRackSlotChanged` - 插槽紀錄變更事件
 - 對應的 `Notify*Changed()` 方法
@@ -38,7 +38,7 @@
 - 注入 `DataChangeNotificationService`
 - 在以下方法中加入通知機制：
   - **MainRackSlot CRUD：** `Insert`、`Update`、`Delete` 後通知
-  - **DetialRackSlot CRUD：** `Insert`、`Delete` 後通知
+  - **DetailRackSlot CRUD：** `Insert`、`Delete` 後通知
   - **QueueRackSlot CRUD：** `Insert`、`Update`、`Delete` 後通知
   - **LogRackSlot CRUD：** `Insert` 後通知
 
@@ -75,7 +75,7 @@
   - Floor - 樓層
   - TaskUid - 任務編號
 
-##### DetialRackSlotPage.razor
+##### DetailRackSlotPage.razor
 - **路由：** `/rackslot/detail`
 - **功能：** 儲存架插槽事件明細
 - **欄位：** MainRackSlot 欄位 + UID、OccurrenceTime
@@ -168,7 +168,7 @@ public void Dispose()
 ### 新增的檔案
 - `FPCService/Components/Pages/StorageRackService/MainStorageRackPage.razor`
 - `FPCService/Components/Pages/RackSlotService/MainRackSlotPage.razor`
-- `FPCService/Components/Pages/RackSlotService/DetialRackSlotPage.razor`
+- `FPCService/Components/Pages/RackSlotService/DetailRackSlotPage.razor`
 - `FPCService/Components/Pages/RackSlotService/QueueRackSlotPage.razor`
 - `FPCService/Components/Pages/RackSlotService/LogRackSlotPage.razor`
 

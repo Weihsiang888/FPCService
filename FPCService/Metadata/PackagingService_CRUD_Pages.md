@@ -17,7 +17,7 @@
   - ProcessTime (處理時間)
 - **操作**: 新增、編輯、刪除
 
-### 2. DetialPackagingPage.razor
+### 2. DetailPackagingPage.razor
 - **路由**: `/packaging/detail`
 - **功能**: 包裝事件明細
 - **欄位**:
@@ -68,13 +68,13 @@
 ```csharp
 // Packaging 相關事件
 public event Action? MainPackagingChanged;
-public event Action? DetialPackagingChanged;
+public event Action? DetailPackagingChanged;
 public event Action? QueuePackagingChanged;
 public event Action? LogPackagingChanged;
 
 // 通知方法 - Packaging
 public void NotifyMainPackagingChanged() => MainPackagingChanged?.Invoke();
-public void NotifyDetialPackagingChanged() => DetialPackagingChanged?.Invoke();
+public void NotifyDetailPackagingChanged() => DetailPackagingChanged?.Invoke();
 public void NotifyQueuePackagingChanged() => QueuePackagingChanged?.Invoke();
 public void NotifyLogPackagingChanged() => LogPackagingChanged?.Invoke();
 ```
